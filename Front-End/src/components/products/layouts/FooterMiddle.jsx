@@ -1,3 +1,5 @@
+import { NavLink } from "react-router-dom";
+
 function FooterMiddle() {
   return (
     <>
@@ -44,7 +46,7 @@ function FooterMiddle() {
                       <a href="javascript:void(0)">من نحن؟</a>
                     </li>
                     <li>
-                      <a href="javascript:void(0)">تواصل معنا</a>
+                      <NavLink to="/contact-us">تواصل معنا</NavLink>
                     </li>
                     <li>
                       <a href="javascript:void(0)">اطلب الأن</a>
