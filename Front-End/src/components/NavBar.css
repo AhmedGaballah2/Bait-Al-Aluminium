@@ -1561,6 +1561,8 @@
   padding: 30px 0;
   -webkit-box-shadow: 0px 7px 30px rgba(0, 0, 0, 0.075);
   box-shadow: 0px 7px 30px rgba(0, 0, 0, 0.075);
+  z-index: 10;
+  position: relative;
 
   .container {
     width: 100%;
@@ -1607,6 +1609,10 @@
       }
     }
   }
+}
+
+.dd-menu.active-page {
+  color: #0167f3 !important;
 }
 
 @media (max-width: 767px) {
