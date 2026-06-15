@@ -6,7 +6,7 @@ import { NavLink, useLocation } from "react-router-dom";
 const pageNames = {
   "/contact-us": "تواصل معنا",
   "/about": "من نحن؟",
-  "/Q&A": "أسئلة متكررة",
+  "/faq": "أسئلة متكررة",
 };
 
 function PageTitler() {

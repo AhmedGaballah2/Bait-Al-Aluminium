@@ -4,6 +4,7 @@ import Preloader from "./components/products/layouts/Preloader";
 import HomePage from "./pages/HomePage";
 import ContactUs from "./pages/ContactUs";
 import About from "./pages/About";
+import FAQ from "./pages/FAQ";
 import ScrollToTop from "./components/ScrollToTop";
 
 import { useState, useEffect } from "react";
@@ -35,6 +36,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/about" element={<About />} />
+        <Route path="/faq" element={<FAQ />} />
       </Routes>
 
       <ScrollToTop />
