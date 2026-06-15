@@ -43,7 +43,7 @@ function FooterMiddle() {
                   <h3>معلومات عنا</h3>
                   <ul>
                     <li>
-                      <a href="javascript:void(0)">من نحن؟</a>
+                      <NavLink to="/about">من نحن؟</NavLink>
                     </li>
                     <li>
                       <NavLink to="/contact-us">تواصل معنا</NavLink>

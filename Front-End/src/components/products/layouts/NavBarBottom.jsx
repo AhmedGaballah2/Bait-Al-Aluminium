@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
@@ -11,6 +11,10 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 
 function NavBarBottom() {
+  const location = useLocation();
+
+  const isPagesActive = ["/about", "/faq"].includes(location.pathname);
+
   const [menuActive, setMenuActive] = useState(false);
   const [categories, setCategories] = useState([]);
   const [offers, setOffers] = useState([]);
@@ -74,7 +78,7 @@ function NavBarBottom() {
                     </li>
                     <li className="nav-item">
                       <a
-                        className="dd-menu collapsed"
+                        className={`dd-menu collapsed ${isPagesActive ? "active-page" : ""}`}
                         href="javascript:void(0)"
                         data-bs-toggle="collapse"
                         data-bs-target="#submenu-1-2"
@@ -86,10 +90,14 @@ function NavBarBottom() {
                       </a>
                       <ul className="sub-menu collapse" id="submenu-1-2">
                         <li className="nav-item">
-                          <a href="about-us.html">من نحن؟</a>
+                          <NavLink className="nav-item" to="/about">
+                            من نحن؟
+                          </NavLink>
                         </li>
                         <li className="nav-item">
-                          <a href="faq.html">أسئلة متكررة</a>
+                          <NavLink className="nav-item" to="/faq">
+                            أسألة متكرره
+                          </NavLink>
                         </li>
                       </ul>
                     </li>
