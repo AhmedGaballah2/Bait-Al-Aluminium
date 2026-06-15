@@ -49,10 +49,10 @@ function FooterMiddle() {
                       <NavLink to="/contact-us">تواصل معنا</NavLink>
                     </li>
                     <li>
-                      <a href="javascript:void(0)">اطلب الأن</a>
+                      <a href="javascript:void(0)">الشراء</a>
                     </li>
                     <li>
-                      <a href="javascript:void(0)">اسألنا</a>
+                      <NavLink to={"/faq"}>أسئلة متكررة</NavLink>
                     </li>
                   </ul>
                 </div>

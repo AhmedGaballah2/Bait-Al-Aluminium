@@ -118,7 +118,7 @@ function NavBarBottom() {
                           <a href="product-grids.html">العربة</a>
                         </li>
                         <li className="nav-item">
-                          <a href="product-list.html">الطلب</a>
+                          <a href="product-list.html">الشراء</a>
                         </li>
                       </ul>
                     </li>
