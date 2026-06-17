@@ -8,8 +8,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
 from .forms import ProductForm, OfferForm, NewArrivalForm
-from .models import Category, NewArrival, Offer, Product
-from .serializers import CategorySerializer, OfferSerializer, ProductSerializer, NewArrivalSerializer
+from .models import Category, NewArrival, Offer, Product, Review
+from .serializers import CategorySerializer, OfferSerializer, ProductSerializer, NewArrivalSerializer, ReviewSerializer
 
 # Create your views here.
 
@@ -226,3 +226,44 @@ class CategoryListAPIView(APIView):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
+
+@api_view(['GET'])
+def product_detail(request, pk):
+    try:
+        product = Product.objects.get(pk=pk)
+    except Product.DoesNotExist:
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = ProductSerializer(product)
+    return Response(serializer.data)
+
+class ReviewAPIView(APIView):
+    def get(self, request, product_id):
+        reviews = Review.objects.filter(product_id=product_id)
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, product_id):
+        data = request.data.copy()
+        data["product"] = product_id
+
+        serializer = ReviewSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+
+        return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+def related_products(request, pk):
+    try:
+        product = Product.objects.get(id=pk)
+    except Product.DoesNotExist:
+        return Response({"error": "Not found"}, status=404)
+
+    related = Product.objects.filter(
+        category=product.category
+    ).exclude(id=product.id)[:6]
+
+    serializer = ProductSerializer(related, many=True)
+    return Response(serializer.data)

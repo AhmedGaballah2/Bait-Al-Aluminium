@@ -7,6 +7,7 @@ import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./pages/NotFound";
+import ProductDetails from "./pages/ProductDetails";
 
 import { useState, useEffect } from "react";
 
@@ -38,6 +39,7 @@ function App() {
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/about" element={<About />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

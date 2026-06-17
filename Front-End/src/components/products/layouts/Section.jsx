@@ -65,6 +65,8 @@ function Section({ category, banner }) {
                 oldPrice={product.old_price}
                 discount={product.discount}
                 isNew={product.is_new}
+                id={product.id}
+                averageRating={product.average_rating}
               />
             </SwiperSlide>
           ))}
