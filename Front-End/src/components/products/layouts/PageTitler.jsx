@@ -11,7 +11,12 @@ const pageNames = {
 
 function PageTitler() {
   const location = useLocation();
-  const currentPage = pageNames[location.pathname] || "";
+
+  let currentPage = pageNames[location.pathname] || "";
+
+  if (location.pathname.startsWith("/product/")) {
+    currentPage = location.state?.productName || "تفاصيل المنتج";
+  }
 
   return (
     <>

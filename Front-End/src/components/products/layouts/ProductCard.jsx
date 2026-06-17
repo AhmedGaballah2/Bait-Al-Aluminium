@@ -1,5 +1,13 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCartShopping,
+  faStar,
+  faStarHalfStroke,
+} from "@fortawesome/free-solid-svg-icons";
+
+import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
+
+import { NavLink } from "react-router-dom";
 
 function ProductCard({
   image,
@@ -9,7 +17,41 @@ function ProductCard({
   oldPrice,
   isNew,
   discount,
+  id,
+  averageRating,
 }) {
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalf = rating % 1 !== 0;
+
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push(
+          <FontAwesomeIcon key={i} icon={faStar} className="text-warning" />,
+        );
+      } else if (i === fullStars && hasHalf) {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStarHalfStroke}
+            className="text-warning"
+          />,
+        );
+      } else {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStarRegular}
+            className="text-muted"
+          />,
+        );
+      }
+    }
+
+    return stars;
+  };
+
   return (
     <div className="single-product position-relative">
       <div className="product-image">
@@ -30,8 +72,15 @@ function ProductCard({
         <span className="category">{category}</span>
 
         <h4 className="title">
-          <a href="#">{name}</a>
+          <NavLink to={`/product/${id}`} state={{ productName: name }}>
+            {name}
+          </NavLink>
         </h4>
+
+        <div className="reviews">
+          {renderStars(averageRating)}
+          <span className="ms-2 text-muted small">({averageRating})</span>
+        </div>
 
         <div className="price">
           <span style={{ marginLeft: "10px" }}>جنيه {price}</span>
