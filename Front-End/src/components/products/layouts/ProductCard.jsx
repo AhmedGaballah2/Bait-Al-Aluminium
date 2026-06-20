@@ -9,6 +9,8 @@ import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 
 import { NavLink } from "react-router-dom";
 
+import { useCart } from "./CartContext";
+
 function ProductCard({
   image,
   name,
@@ -19,7 +21,10 @@ function ProductCard({
   discount,
   id,
   averageRating,
+  stock,
 }) {
+  const { addToCart } = useCart();
+
   const renderStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -55,16 +60,35 @@ function ProductCard({
   return (
     <div className="single-product position-relative">
       <div className="product-image">
-        <img src={`http://127.0.0.1:8000${image}`} alt="#" />
+        <NavLink
+          to={`/product/${id}`}
+          state={{ productName: name }}
+          style={{ width: "100%", height: "100%" }}
+        >
+          <img src={`http://127.0.0.1:8000${image}`} alt="#" />
+        </NavLink>
 
         <div className="button">
-          <a href="product-details.html" className="btn">
-            <i className="lni lni-cart">
-              <FontAwesomeIcon icon={faCartShopping} />
-            </i>
-
+          <button
+            className="btn"
+            onClick={() =>
+              addToCart(
+                {
+                  id,
+                  name,
+                  image,
+                  price,
+                  stock,
+                  oldPrice,
+                  category,
+                },
+                1,
+              )
+            }
+          >
+            <FontAwesomeIcon icon={faCartShopping} />
             <span className="me-2">أضف للعربة</span>
-          </a>
+          </button>
         </div>
       </div>
 

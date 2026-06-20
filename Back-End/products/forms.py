@@ -14,7 +14,14 @@ class ProductForm(forms.ModelForm):
             'old_price': 'السعر القديم',
             'stock': 'المخزون',
             'category': 'الفئة',
-            'image': 'صورة المنتج',
+            'image': 'الصورة الرئيسية',
+            'image_2': 'الصورة الجانبية 1',
+            'image_3': 'الصورة الجانبية 2',
+            'image_4': 'الصورة الجانبية 3',
+            'image_5': 'الصورة الجانبية 4',
+            'more_details': 'تفاصيل أكثر',
+            'specs': 'المواصفات',
+            'features': 'الميزات',
             'is_new': 'منتج جديد؟',
             'added_at': 'تاريخ الإضافة',
         }
@@ -41,7 +48,14 @@ class OfferForm(forms.ModelForm):
             'title': 'عنوان العرض',
             'description': 'وصف العرض',
             'price': 'سعر العرض',
-            'image': 'صورة العرض',
+            'image': 'الصورة الرئيسية',
+            'image_2': 'الصورة الجانبية 1',
+            'image_3': 'الصورة الجانبية 2',
+            'image_4': 'الصورة الجانبية 3',
+            'image_5': 'الصورة الجانبية 4',
+            'price_details': 'تفاصيل السعر',
+            'specs': 'المواصفات',
+            'features': 'الميزات',
         }
     
     def __init__(self, *args, **kwargs):
@@ -64,7 +78,14 @@ class NewArrivalForm(forms.ModelForm):
         labels = {
             'title' : 'عنوان المنتج الجديد',
             'price' : 'سعر المنتج الجديد',
-            'image' : 'صورة المنتج الجديد',
+            'image' : 'الصورة الرئيسية',
+            'image_2' : 'الصورة الجانبية 1',
+            'image_3' : 'الصورة الجانبية 2',
+            'image_4' : 'الصورة الجانبية 3',
+            'image_5' : 'الصورة الجانبية 4',
+            'price_details': 'تفاصيل السعر',
+            'specs': 'المواصفات',
+            'features': 'الميزات',
         }
     
     def __init__(self, *args, **kwargs):

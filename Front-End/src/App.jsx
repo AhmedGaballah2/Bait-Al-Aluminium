@@ -8,6 +8,9 @@ import FAQ from "./pages/FAQ";
 import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./pages/NotFound";
 import ProductDetails from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
+
+import { CartProvider } from "./components/products/layouts/CartContext";
 
 import { useState, useEffect } from "react";
 
@@ -34,17 +37,20 @@ function App() {
     <>
       {loading && <Preloader />}
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/contact-us" element={<ContactUs />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
+      <CartProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/cart" element={<Cart />} />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
 
-      <ScrollToTop />
+        <ScrollToTop />
+      </CartProvider>
     </>
   );
 }

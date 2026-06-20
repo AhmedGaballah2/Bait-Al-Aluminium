@@ -12,7 +12,18 @@ class Product(models.Model):
         blank=True
     )
 
+    # Main and side images
     image = models.ImageField(upload_to='products/')
+    image_2 = models.ImageField(upload_to='products/', null=True, blank=True)
+    image_3 = models.ImageField(upload_to='products/', null=True, blank=True)
+    image_4 = models.ImageField(upload_to='products/', null=True, blank=True)
+    image_5 = models.ImageField(upload_to='products/', null=True, blank=True)
+
+    # New properties
+    more_details = models.TextField(null=True, blank=True)
+    specs = models.TextField(null=True, blank=True)
+    features = models.TextField(null=True, blank=True)
+
     stock = models.PositiveIntegerField(default=0)
 
     category = models.ForeignKey(
@@ -43,7 +54,19 @@ class Offer(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Main and side images
     image = models.ImageField(upload_to='offers/')
+    image_2 = models.ImageField(upload_to='offers/', null=True, blank=True)
+    image_3 = models.ImageField(upload_to='offers/', null=True, blank=True)
+    image_4 = models.ImageField(upload_to='offers/', null=True, blank=True)
+    image_5 = models.ImageField(upload_to='offers/', null=True, blank=True)
+    
+    # New properties
+    price_details = models.TextField(null=True, blank=True)
+    specs = models.TextField(null=True, blank=True)
+    features = models.TextField(null=True, blank=True)
+    
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -53,7 +76,19 @@ class Offer(models.Model):
 class NewArrival(models.Model):
     title = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Main and side images
     image = models.ImageField(upload_to='new_arrivals/')
+    image_2 = models.ImageField(upload_to='new_arrivals/', null=True, blank=True)
+    image_3 = models.ImageField(upload_to='new_arrivals/', null=True, blank=True)
+    image_4 = models.ImageField(upload_to='new_arrivals/', null=True, blank=True)
+    image_5 = models.ImageField(upload_to='new_arrivals/', null=True, blank=True)
+    
+    # New properties
+    price_details = models.TextField(null=True, blank=True)
+    specs = models.TextField(null=True, blank=True)
+    features = models.TextField(null=True, blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 

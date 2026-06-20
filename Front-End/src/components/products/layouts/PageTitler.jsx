@@ -7,6 +7,7 @@ const pageNames = {
   "/contact-us": "تواصل معنا",
   "/about": "من نحن؟",
   "/faq": "أسئلة متكررة",
+  "/cart": "العربة",
 };
 
 function PageTitler() {
