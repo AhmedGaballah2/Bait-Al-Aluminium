@@ -83,55 +83,62 @@ function MidArea() {
             <div className="col-lg-6 col-12">
               <div className="info-body custom-responsive-margin">
                 <h4>تفاصيل المنتج</h4>
-                <p>{product?.description}</p>
+                <p>{product?.more_details}</p>
+
                 <h4>مميزات المنتج</h4>
                 <ul className="features">
-                  <li>
-                    <span>سشكىشسيتسش</span>
-                  </li>
-                  <li>
-                    <span>شسميتسشيم</span>
-                  </li>
-                  <li>
-                    <span>سيششسيسيش</span>
-                  </li>
-                  <li>
-                    <span>سشيسيشيش</span>
-                  </li>
-                  <li>
-                    <span>شسيسشيشسي</span>
-                  </li>
+                  {product?.features
+                    ?.split(/\r?\n/)
+                    .filter((item) => item.trim())
+                    .map((item, index) => (
+                      <li key={index}>
+                        <span>{item}</span>
+                      </li>
+                    ))}
                 </ul>
               </div>
             </div>
             <div className="col-lg-6 col-12">
               <div className="info-body">
                 <h4>مواصفات المنتج</h4>
-                <ul className="normal-list">
-                  <li>
-                    <span></span>
-                  </li>
-                  <li>
-                    <span></span>
-                  </li>
-                  <li>
-                    <span></span>
-                  </li>
-                  <li>
-                    <span></span>
-                  </li>
-                  <li>
-                    <span></span>
-                  </li>
+                <ul className="features">
+                  {product?.specs
+                    ?.split(/\r?\n/)
+                    .filter((item) => item.trim())
+                    .map((item, index) => (
+                      <li key={index}>
+                        <span>{item}</span>
+                      </li>
+                    ))}
                 </ul>
+
                 <h4>تفاصيل الشحن</h4>
                 <ul className="normal-list">
                   <li>
-                    مدة التوصيل: <span>2 - 3 أيام</span>
+                    تجهيز الطلب: <span> خلال 24 – 48 ساعة قبل الشحن</span>
                   </li>
-                  <li>سينسشيسشن</li>
-                  <li>سشيسششسي</li>
-                  <li>سيشسشسي</li>
+                  <li>
+                    التوصيل: <span>3 - 5 أيام عمل</span>
+                  </li>
+
+                  <li>
+                    التغطية: <span>جميع محافظات مصر</span>
+                  </li>
+
+                  <li>
+                    سعر الشحن:{" "}
+                    <span>
+                      120 جنيه (الصعيد وسيناء) / 80 جنيه (باقي المحافظات)
+                    </span>
+                  </li>
+
+                  <li>
+                    الشحن المجاني: <span>للطلبات فوق 2500 جنيه</span>
+                  </li>
+
+                  <li>
+                    الدفع: <span>عند الاستلام</span>
+                  </li>
                 </ul>
               </div>
             </div>

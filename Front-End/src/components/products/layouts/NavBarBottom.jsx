@@ -115,7 +115,7 @@ function NavBarBottom() {
                       </a>
                       <ul className="sub-menu collapse" id="submenu-1-3">
                         <li className="nav-item">
-                          <a href="product-grids.html">العربة</a>
+                          <NavLink to={"/cart"}>العربة</NavLink>
                         </li>
                         <li className="nav-item">
                           <a href="product-list.html">الشراء</a>

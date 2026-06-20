@@ -26,6 +26,14 @@
       grid-template-columns: repeat(5, 1fr);
       grid-gap: 1em 1em;
       margin-top: 1em;
+
+      img {
+        transition: all 0.3s ease;
+      }
+
+      img:hover {
+        opacity: 0.6;
+      }
     }
   }
 

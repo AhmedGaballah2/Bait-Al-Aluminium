@@ -11,7 +11,16 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import logo from "../../../assets/Logo.webp";
 
+import { useCart } from "./CartContext";
+
 function NavBarMiddle() {
+  const { cartItems, removeFromCart } = useCart();
+
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
+
   return (
     <>
       <div className="header-middle">
@@ -84,80 +93,72 @@ function NavBarMiddle() {
                       href="javascript:void(0)"
                       className="main-btn d-flex justify-content-center align-items-center"
                     >
-                      <i className="lni lni-cart">
-                        <FontAwesomeIcon
-                          icon={faCartShopping}
-                          style={{ color: "#081828" }}
-                        />
-                      </i>
-                      <span className="total-items">2</span>
+                      <NavLink to={"/cart"}>
+                        <i className="lni lni-cart">
+                          <FontAwesomeIcon
+                            icon={faCartShopping}
+                            style={{ color: "#081828" }}
+                          />
+                        </i>
+                      </NavLink>
+                      <span className="total-items">{cartItems.length}</span>
                     </a>
                     <div className="shopping-item">
                       <div className="dropdown-cart-header">
-                        <span>عناصر: 2</span>
-                        <a href="cart.html">العربة</a>
+                        <span>عدد العناصر: {cartItems.length}</span>
+                        <NavLink to={"/cart"}>العربة</NavLink>
                       </div>
                       <ul className="shopping-list">
-                        <li>
-                          <a
-                            className="remove"
-                            href="javascript:void(0)"
-                            title="Remove this item"
+                        {cartItems.length === 0 ? (
+                          <li
+                            style={{ padding: "10px" }}
+                            className="justify-content-center"
                           >
-                            <FontAwesomeIcon icon={faXmark} />
-                          </a>
-                          <div className="cart-img-head">
-                            <a className="cart-img" href="product-details.html">
-                              <img
-                                src="assets/images/header/cart-items/item1.jpg"
-                                alt="#"
-                              />
-                            </a>
-                          </div>
+                            العربة فارغه
+                          </li>
+                        ) : (
+                          cartItems.map((item) => (
+                            <li key={item.id}>
+                              <a
+                                className="remove"
+                                onClick={() => removeFromCart(item.id)}
+                                style={{ cursor: "pointer" }}
+                              >
+                                <FontAwesomeIcon icon={faXmark} />
+                              </a>
 
-                          <div className="content">
-                            <h4>
-                              <a href="product-details.html">
-                                Apple Watch Series 6
-                              </a>
-                            </h4>
-                            <p className="quantity">
-                              1x - <span className="amount">$99.00</span>
-                            </p>
-                          </div>
-                        </li>
-                        <li>
-                          <a
-                            href="javascript:void(0)"
-                            className="remove"
-                            title="Remove this item"
-                          >
-                            <FontAwesomeIcon icon={faXmark} />
-                          </a>
-                          <div className="cart-img-head">
-                            <a className="cart-img" href="product-details.html">
-                              <img
-                                src="assets/images/header/cart-items/item2.jpg"
-                                alt="#"
-                              />
-                            </a>
-                          </div>
-                          <div className="content">
-                            <h4>
-                              <a href="product-details.html">
-                                Wi-Fi Smart Camera
-                              </a>
-                            </h4>
-                            <p className="quantity">
-                              1x - <span className="amount">$35.00</span>
-                            </p>
-                          </div>
-                        </li>
+                              <div className="cart-img-head">
+                                <img
+                                  src={`http://127.0.0.1:8000${item.image}`}
+                                  alt=""
+                                />
+                              </div>
+
+                              <div className="content">
+                                <h4 className="text-end">
+                                  <NavLink
+                                    to={`/product/${item.id}`}
+                                    state={{ productName: item.name }}
+                                  >
+                                    {item.name}
+                                  </NavLink>
+                                </h4>
+
+                                <p className="quantity text-end">
+                                  {item.quantity}x -{" "}
+                                  <span className="amount">
+                                    {item.price} جنيه
+                                  </span>
+                                </p>
+                              </div>
+                            </li>
+                          ))
+                        )}
                       </ul>
                       <div className="bottom">
                         <div className="total" dir="rtl">
                           <span>الإجمالي:</span>
-                          <span className="total-amount">134.00 جنيه</span>
+                          <span className="total-amount">{total} جنيه</span>
                         </div>
                         <div className="button">
                           <a

@@ -16,16 +16,23 @@ import { NavLink, useParams } from "react-router";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
+import { useCart } from "./CartContext";
+
 function TopArea() {
+  const { addToCart } = useCart();
+
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
+
+  const [mainImage, setMainImage] = useState("");
 
   useEffect(() => {
     axios
       .get(`http://127.0.0.1:8000/api/products/${id}`)
       .then((response) => {
         setProduct(response.data);
+        setMainImage(response.data.image);
       })
       .catch((error) => {
         console.log(error);
@@ -35,7 +42,7 @@ function TopArea() {
   const [quantity, setQuantity] = useState(1);
 
   const increase = () => {
-    setQuantity((prev) => (prev < product.stock ? prev + 1 : prev));
+    setQuantity((prev) => (prev < product?.stock ? prev + 1 : prev));
   };
 
   const decrease = () => {
@@ -96,44 +103,29 @@ function TopArea() {
             <div className="product-images">
               <main id="gallery">
                 <div className="main-img">
-                  {product && (
-                    <img
-                      src={`http://127.0.0.1:8000${product?.image}`}
-                      alt=""
-                    />
+                  {mainImage && (
+                    <img src={`http://127.0.0.1:8000${mainImage}`} alt="" />
                   )}
                 </div>
                 <div className="images">
-                  {product && (
-                    <img
-                      src={`http://127.0.0.1:8000${product?.image}`}
-                      alt=""
-                    />
-                  )}
-                  {product && (
-                    <img
-                      src={`http://127.0.0.1:8000${product?.image}`}
-                      alt=""
-                    />
-                  )}
-                  {product && (
-                    <img
-                      src={`http://127.0.0.1:8000${product?.image}`}
-                      alt=""
-                    />
-                  )}
-                  {product && (
-                    <img
-                      src={`http://127.0.0.1:8000${product?.image}`}
-                      alt=""
-                    />
-                  )}
-                  {product && (
-                    <img
-                      src={`http://127.0.0.1:8000${product?.image}`}
-                      alt=""
-                    />
-                  )}
+                  {product &&
+                    [
+                      product.image,
+                      product.image_2,
+                      product.image_3,
+                      product.image_4,
+                      product.image_5,
+                    ]
+                      .filter(Boolean)
+                      .map((image, index) => (
+                        <img
+                          key={index}
+                          src={`http://127.0.0.1:8000${image}`}
+                          alt={`product-${index + 1}`}
+                          onClick={() => setMainImage(image)}
+                          className={mainImage === image ? "active" : ""}
+                        />
+                      ))}
                 </div>
               </main>
             </div>
@@ -190,7 +182,24 @@ function TopArea() {
                   </div>
                   <div className="col-lg-4 col-md-4 col-12">
                     <div className="button cart-button">
-                      <button className="btn" style={{ width: "100%" }}>
+                      <button
+                        className="btn"
+                        style={{ width: "100%" }}
+                        onClick={() => {
+                          if (!product) return;
+
+                          addToCart(
+                            {
+                              id: product.id,
+                              name: product.name,
+                              image: product.image,
+                              price: product.price,
+                              stock: product.stock,
+                            },
+                            quantity,
+                          );
+                        }}
+                      >
                         أضف للعربة <FontAwesomeIcon icon={faCartShopping} />
                       </button>
                     </div>
