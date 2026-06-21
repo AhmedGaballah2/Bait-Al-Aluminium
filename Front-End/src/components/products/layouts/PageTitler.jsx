@@ -8,6 +8,7 @@ const pageNames = {
   "/about": "من نحن؟",
   "/faq": "أسئلة متكررة",
   "/cart": "العربة",
+  "/fav": "المفضلة",
 };
 
 function PageTitler() {

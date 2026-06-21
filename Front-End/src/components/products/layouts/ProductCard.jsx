@@ -11,6 +11,8 @@ import { NavLink } from "react-router-dom";
 
 import { useCart } from "./CartContext";
 
+import { useState } from "react";
+
 function ProductCard({
   image,
   name,
@@ -57,6 +59,29 @@ function ProductCard({
     return stars;
   };
 
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    addToCart(
+      {
+        id,
+        name,
+        image,
+        price,
+        stock,
+        oldPrice,
+        category,
+      },
+      1,
+    );
+
+    setAdded(true);
+
+    setTimeout(() => {
+      setAdded(false);
+    }, 2000);
+  };
+
   return (
     <div className="single-product position-relative">
       <div className="product-image">
@@ -70,24 +95,15 @@ function ProductCard({
 
         <div className="button">
           <button
-            className="btn"
-            onClick={() =>
-              addToCart(
-                {
-                  id,
-                  name,
-                  image,
-                  price,
-                  stock,
-                  oldPrice,
-                  category,
-                },
-                1,
-              )
-            }
+            className={`btn ${added ? "added" : ""}`}
+            onClick={handleAddToCart}
+            disabled={added}
           >
             <FontAwesomeIcon icon={faCartShopping} />
-            <span className="me-2">أضف للعربة</span>
+
+            <span className="me-2">
+              {added ? "تمت الإضافة " : "أضف للعربة"}
+            </span>
           </button>
         </div>
       </div>
