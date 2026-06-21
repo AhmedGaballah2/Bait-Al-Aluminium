@@ -1,4 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import {
   faTags,
   faPlus,
@@ -13,12 +14,43 @@ import {
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 
 import { NavLink, useParams } from "react-router";
+
 import axios from "axios";
+
 import { useEffect, useState } from "react";
 
 import { useCart } from "./CartContext";
 
+import { useWishlist } from "./WishlistContext";
+
 function TopArea() {
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        stock: product.stock,
+        oldPrice: product.old_price,
+        category: product.category,
+      },
+      quantity,
+    );
+
+    setAdded(true);
+
+    setTimeout(() => {
+      setAdded(false);
+    }, 2000);
+  };
+
+  const { addToWishlist, removeFromWishlist, isFavorite } = useWishlist();
+
   const { addToCart } = useCart();
 
   const { id } = useParams();
@@ -175,32 +207,43 @@ function TopArea() {
                   </div>
                   <div className="col-lg-4 col-md-4 col-12">
                     <div className="wish-button">
-                      <button className="btn">
-                        أضف للمفضلة <FontAwesomeIcon icon={faHeart} />
+                      <button
+                        className="btn"
+                        onClick={() => {
+                          if (!product) return;
+
+                          isFavorite(product.id)
+                            ? removeFromWishlist(product.id)
+                            : addToWishlist(product);
+                        }}
+                      >
+                        {product && isFavorite(product.id)
+                          ? "إزالة من المفضلة "
+                          : "أضف للمفضلة "}
+
+                        <FontAwesomeIcon
+                          icon={faHeart}
+                          className={
+                            product && isFavorite(product.id)
+                              ? "text-danger"
+                              : ""
+                          }
+                        />
                       </button>
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-4 col-12">
                     <div className="button cart-button">
                       <button
-                        className="btn"
-                        style={{ width: "100%" }}
-                        onClick={() => {
-                          if (!product) return;
-
-                          addToCart(
-                            {
-                              id: product.id,
-                              name: product.name,
-                              image: product.image,
-                              price: product.price,
-                              stock: product.stock,
-                            },
-                            quantity,
-                          );
-                        }}
+                        className={`btn ${added ? "added" : ""}`}
+                        onClick={handleAddToCart}
+                        disabled={added}
                       >
-                        أضف للعربة <FontAwesomeIcon icon={faCartShopping} />
+                        <FontAwesomeIcon icon={faCartShopping} />
+
+                        <span className="me-2">
+                          {added ? "تمت الإضافة " : "أضف للعربة"}
+                        </span>
                       </button>
                     </div>
                   </div>

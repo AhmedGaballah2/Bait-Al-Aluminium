@@ -1,4 +1,4 @@
-.shopping-cart {
+.fav {
   background-color: #f9f9f9;
 
   .cart-list-head {
@@ -81,89 +81,36 @@
         background-color: #081828;
       }
 
-      .btns {
-        .btn {
-          transition: all 0.3s ease;
-        }
-        .btn:hover {
-          background-color: #081828;
-          border-color: #081828;
-        }
-      }
-    }
-  }
-
-  .total-amount {
-    .right {
-      padding: 40px;
-      border: 1px solid #eee;
-      background-color: #fff;
-      border-radius: 4px;
-      margin-top: 40px;
-
-      ul {
-        li {
-          font-weight: 500;
-          color: #081828;
-          margin-bottom: 12px;
-
-          span {
-            display: inline-block;
-            float: left;
-          }
-        }
+      .btn {
+        display: inline-block;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 13px 30px;
+        background-color: #0167f3;
+        color: #fff;
+        border: none;
+        -webkit-transition: 0.2s;
+        transition: 0.2s;
+        border-radius: 3px;
+        position: relative;
+        z-index: 1;
+        margin-right: 7px;
+        overflow: hidden;
+        width: fit-content !important;
       }
 
-      .button {
-        margin-top: 30px;
-
-        .btn {
-          width: 100%;
-          margin-bottom: 8px;
-          display: inline-block;
-          text-transform: capitalize;
-          font-size: 14px;
-          font-weight: 600;
-          padding: 13px 30px;
-          background-color: #0167f3;
-          color: #fff;
-          border: none;
-          -webkit-transition: 0.2s;
-          transition: 0.2s;
-          border-radius: 3px;
-          position: relative;
-          z-index: 1;
-          margin-right: 7px;
-          overflow: hidden;
-        }
-
-        .btn:hover {
-          background-color: #081828;
-        }
-
-        .btn:last-child {
-          background-color: #fff;
-          color: #0167f3;
-          border: 1px solid #eee;
-          padding: 10px 25px;
-          transition: all 0.3s ease-out 0s;
-        }
-
-        .btn:last-child:hover {
-          background-color: #0167f3;
-          color: #fff;
-          border-color: #0167f3;
-        }
+      .btn:hover {
+        background-color: #081828;
       }
     }
   }
 }
 
 @media (max-width: 767px) {
-  .shopping-cart {
+  .fav {
     p,
-    .btns {
-      padding: 3px 0;
+    .btn {
+      margin: 3px 0;
     }
   }
 }

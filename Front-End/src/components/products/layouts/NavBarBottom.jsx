@@ -14,6 +14,9 @@ function NavBarBottom() {
   const location = useLocation();
 
   const isPagesActive = ["/about", "/faq"].includes(location.pathname);
+  const isShopActive = ["/cart", "/checkout", "/fav"].includes(
+    location.pathname,
+  );
 
   const [menuActive, setMenuActive] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -103,7 +106,7 @@ function NavBarBottom() {
                     </li>
                     <li className="nav-item">
                       <a
-                        className="dd-menu collapsed"
+                        className={`dd-menu collapsed ${isShopActive ? "active-page" : ""}`}
                         href="javascript:void(0)"
                         data-bs-toggle="collapse"
                         data-bs-target="#submenu-1-3"
@@ -116,6 +119,9 @@ function NavBarBottom() {
                       <ul className="sub-menu collapse" id="submenu-1-3">
                         <li className="nav-item">
                           <NavLink to={"/cart"}>العربة</NavLink>
+                        </li>
+                        <li className="nav-item">
+                          <NavLink to={"/fav"}>المفضلة</NavLink>
                         </li>
                         <li className="nav-item">
                           <a href="product-list.html">الشراء</a>

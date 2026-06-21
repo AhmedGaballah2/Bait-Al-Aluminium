@@ -13,8 +13,12 @@ import logo from "../../../assets/Logo.webp";
 
 import { useCart } from "./CartContext";
 
+import { useWishlist } from "./WishlistContext";
+
 function NavBarMiddle() {
   const { cartItems, removeFromCart } = useCart();
+
+  const { wishlist } = useWishlist();
 
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -79,13 +83,15 @@ function NavBarMiddle() {
                       href="javascript:void(0)"
                       className="d-flex justify-content-center align-items-center"
                     >
-                      <i className="lni lni-heart">
-                        <FontAwesomeIcon
-                          icon={faHeart}
-                          style={{ color: "#081828" }}
-                        />
-                      </i>
-                      <span className="total-items">0</span>
+                      <NavLink to={"/fav"}>
+                        <i className="lni lni-heart">
+                          <FontAwesomeIcon
+                            icon={faHeart}
+                            style={{ color: "#081828" }}
+                          />
+                        </i>
+                      </NavLink>
+                      <span className="total-items">{wishlist.length}</span>
                     </a>
                   </div>
                   <div className="cart-items">
