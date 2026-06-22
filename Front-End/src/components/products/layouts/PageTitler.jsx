@@ -9,6 +9,7 @@ const pageNames = {
   "/faq": "أسئلة متكررة",
   "/cart": "العربة",
   "/fav": "المفضلة",
+  "/checkout": "الشراء",
 };
 
 function PageTitler() {
@@ -21,7 +22,7 @@ function PageTitler() {
   }
 
   if (location.pathname.startsWith("/offer/")) {
-    currentPage = location.state?.productName || "تفاصيل المنتج";
+    currentPage = location.state?.offerName || "تفاصيل المنتج";
   }
 
   return (

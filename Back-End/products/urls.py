@@ -8,6 +8,12 @@ from .views import (
     dashboard_new_arrivals,
     dashboard_offers,
     dashboard_reviews,
+    dashboard_orders,
+    create_order,
+    order_detail,
+    order_detail_view,
+    order_delete_view,
+    get_orders,
 )
 from . import views
 
@@ -19,12 +25,15 @@ urlpatterns = [
     path('dashboard/new-arrivals/', dashboard_new_arrivals, name='dashboard_new_arrivals'),
     path('dashboard/offers/', dashboard_offers, name='dashboard_offers'),
     path('dashboard/reviews/', dashboard_reviews, name='dashboard_reviews'),
+    path('dashboard/orders/', dashboard_orders, name='dashboard_orders'),
+    path('dashboard/order/<int:pk>/', order_detail_view, name='dashboard_order_detail'),
     path('<int:pk>/details/', views.product_details, name='product_details'),
     path('add/', views.add_product, name='add_product'),
     path('<int:pk>/delete/', views.delete_product, name='delete_product'),
     path('<int:pk>/edit/', views.edit_product, name='edit_product'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('api/products/', get_products),
     path('products/', get_products),
     path('add-offer/', views.add_offer, name='add_offer'),
     path('edit-offer/<int:pk>/', views.edit_offer, name='edit_offer'),
@@ -43,4 +52,10 @@ urlpatterns = [
     path('api/products/<int:pk>/', views.product_detail),
     path("api/products/<int:product_id>/reviews/", ReviewAPIView.as_view()),
     path('products/<int:pk>/related/', related_products),
+    # Order endpoints
+    path('orders/', create_order, name='orders_create'),
+    path('api/orders/', get_orders, name='get_orders'),
+    path('api/orders/create/', create_order, name='create_order'),
+    path('api/orders/<int:pk>/', order_detail, name='order_detail_api'),
+    path('dashboard/order/<int:pk>/delete/', order_delete_view, name='dashboard_order_delete'),
 ]
