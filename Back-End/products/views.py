@@ -1,24 +1,47 @@
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
 from .forms import ProductForm, OfferForm, NewArrivalForm
-from .models import Category, NewArrival, Offer, Product, Review
-from .serializers import CategorySerializer, OfferSerializer, ProductSerializer, NewArrivalSerializer, ReviewSerializer
+from .models import Category, NewArrival, Offer, Product, Review, OfferReview
+from .serializers import (
+    CategorySerializer,
+    OfferSerializer,
+    ProductSerializer,
+    NewArrivalSerializer,
+    ReviewSerializer,
+    OfferReviewSerializer,
+)
 
 # Create your views here.
 
 @login_required
 def products_list(request):
+    section = request.GET.get('section', 'dashboard')
+    search_query = request.GET.get('search', '').strip()
+    
+    # Get all data
     products = Product.objects.all()
     offers = Offer.objects.all()
     new_arrivals = NewArrival.objects.all()
-
+    
+    # Apply search filter if query exists
+    if search_query:
+        if section == 'products' or section == 'dashboard':
+            products = products.filter(name__icontains=search_query) | products.filter(description__icontains=search_query)
+        if section == 'offers' or section == 'dashboard':
+            offers = offers.filter(title__icontains=search_query) | offers.filter(description__icontains=search_query)
+        if section == 'new_arrivals' or section == 'dashboard':
+            new_arrivals = new_arrivals.filter(title__icontains=search_query) | new_arrivals.filter(description__icontains=search_query)
+    
     context = {
         'products': products,
         'offers': offers,
@@ -26,16 +49,98 @@ def products_list(request):
         'total': products.count(),
         'offerTotal': offers.count(),
         'newArrivalTotal': new_arrivals.count(),
+        'section': section,
+        'search_query': search_query,
     }
 
     return render(request, 'products/products_list.html', context)
 
+
+def _filter_queryset_by_search(queryset, search_query, fields):
+    if not search_query or not fields:
+        return queryset
+
+    query = Q()
+    for field in fields:
+        query |= Q(**{f"{field}__icontains": search_query})
+    return queryset.filter(query)
+
+
+def _paginate_queryset(request, queryset, per_page=15):
+    paginator = Paginator(queryset, per_page)
+    page_number = request.GET.get('page')
+    return paginator.get_page(page_number)
+
+
+def _dashboard_context(request, active_page, queryset, search_fields=None):
+    search_query = request.GET.get('search', '').strip()
+    queryset = _filter_queryset_by_search(queryset, search_query, search_fields or [])
+    page_obj = _paginate_queryset(request, queryset)
+
+    return {
+        'search_query': search_query,
+        'page_obj': page_obj,
+        'active_page': active_page,
+        'result_count': queryset.count(),
+    }
+
+
+@login_required
+def dashboard_products(request):
+    products = Product.objects.select_related('category').order_by('-added_at')
+    context = _dashboard_context(
+        request,
+        active_page='products',
+        queryset=products,
+        search_fields=['name', 'description'],
+    )
+    return render(request, 'products/dashboard/products_list.html', context)
+
+
+@login_required
+def dashboard_new_arrivals(request):
+    new_arrivals = NewArrival.objects.order_by('-created_at')
+    context = _dashboard_context(
+        request,
+        active_page='new_arrivals',
+        queryset=new_arrivals,
+        search_fields=['title'],
+    )
+    return render(request, 'products/dashboard/new_arrivals_list.html', context)
+
+
+@login_required
+def dashboard_offers(request):
+    offers = Offer.objects.order_by('-created_at')
+    context = _dashboard_context(
+        request,
+        active_page='offers',
+        queryset=offers,
+        search_fields=['title', 'subTitle', 'description'],
+    )
+    return render(request, 'products/dashboard/offers_list.html', context)
+
+
+@login_required
+def dashboard_reviews(request):
+    reviews = Review.objects.select_related('product').order_by('-created_at')
+    context = _dashboard_context(
+        request,
+        active_page='reviews',
+        queryset=reviews,
+        search_fields=['name', 'email', 'comment', 'product__name'],
+    )
+    return render(request, 'products/dashboard/reviews_list.html', context)
+
+
 @login_required
 def product_details(request, pk):
     product = get_object_or_404(Product, pk=pk)
+    approved_reviews = product.reviews.filter(approved=True).order_by('-created_at')
 
     context = {
-        'product': product
+        'product': product,
+        'approved_reviews': approved_reviews,
     }
 
     return render(request, 'products/product_details.html', context)
@@ -121,12 +226,15 @@ def delete_offer(request, pk):
 @login_required
 def offer_details(request, pk):
     offer = get_object_or_404(Offer, pk=pk)
+    approved_reviews = offer.reviews.filter(approved=True).order_by('-created_at')
 
     context = {
-        'offer': offer
+        'offer': offer,
+        'approved_reviews': approved_reviews,
     }
 
     return render(request, 'products/offer_details.html', context)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -134,6 +242,36 @@ def offers_list(request):
     offers = Offer.objects.filter(is_active=True)
     serializer = OfferSerializer(offers, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def offer_detail(request, pk):
+    try:
+        offer = Offer.objects.get(pk=pk)
+    except Offer.DoesNotExist:
+        return Response({"error": "Offer not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = OfferSerializer(offer)
+    return Response(serializer.data)
+
+class OfferReviewAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, offer_id):
+        reviews = OfferReview.objects.filter(offer_id=offer_id, approved=True)
+        serializer = OfferReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, offer_id):
+        data = request.data.copy()
+        data["offer"] = offer_id
+
+        serializer = OfferReviewSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+
+        return Response(serializer.errors, status=400)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -164,6 +302,23 @@ def new_product_details(request, pk):
     }
 
     return render(request, 'products/new_product_details.html', context)
+
+
+@login_required
+def review_detail(request, pk):
+    review = get_object_or_404(Review, pk=pk)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        review.approved = True if action == 'publish' else False
+        review.save()
+        return redirect('products:review_detail', pk=review.pk)
+
+    context = {
+        'review': review,
+    }
+
+    return render(request, 'products/review_detail.html', context)
 
 @login_required
 def edit_new_product(request, pk):
@@ -239,7 +394,7 @@ def product_detail(request, pk):
 
 class ReviewAPIView(APIView):
     def get(self, request, product_id):
-        reviews = Review.objects.filter(product_id=product_id)
+        reviews = Review.objects.filter(product_id=product_id, approved=True)
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data)
 

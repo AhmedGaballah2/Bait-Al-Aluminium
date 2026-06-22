@@ -8,11 +8,16 @@ import { NavLink } from "react-router";
 
 import { useCart } from "./products/layouts/CartContext";
 
+const getItemKey = (item) => item.key ?? `${item.type || "product"}-${item.id}`;
+const getItemRoute = (item) =>
+  item.type === "offer" ? `/offer/${item.id}` : `/product/${item.id}`;
+
 function CartDetails() {
   const { cartItems, increaseQty, decreaseQty, removeFromCart } = useCart();
 
   const subtotal = cartItems.reduce(
-    (total, item) => total + (item.old_price || item.price) * item.quantity,
+    (total, item) =>
+      total + (item.oldPrice || item.old_price || item.price) * item.quantity,
     0,
   );
 
@@ -24,7 +29,9 @@ function CartDetails() {
   const totalDiscount = cartItems.reduce(
     (total, item) =>
       total +
-      (item.oldPrice ? (item.oldPrice - item.price) * item.quantity : 0),
+      (item.oldPrice || item.old_price
+        ? ((item.oldPrice || item.old_price) - item.price) * item.quantity
+        : 0),
     0,
   );
 
@@ -62,16 +69,16 @@ function CartDetails() {
               <p className="text-center m-4 fs-5">العربة فارغة</p>
             ) : (
               cartItems.map((item) => (
-                <div className="cart-single-list" key={item.id}>
+                <div className="cart-single-list" key={getItemKey(item)}>
                   <div className="row align-items-center">
                     <div className="col-lg-1 col-md-1 col-12">
                       <NavLink
-                        to={`/product/${item.id}`}
-                        state={{ productName: item.name }}
+                        to={getItemRoute(item)}
+                        state={{ productName: item.title || item.name }}
                       >
                         <img
                           src={`http://127.0.0.1:8000${item.image}`}
-                          alt={item.name}
+                          alt={item.title || item.name}
                         />
                       </NavLink>
                     </div>
@@ -79,17 +86,18 @@ function CartDetails() {
                     <div className="col-lg-4 col-md-3 col-12">
                       <h5 className="product-name">
                         <NavLink
-                          to={`/product/${item.id}`}
-                          state={{ productName: item.name }}
+                          to={getItemRoute(item)}
+                          state={{ productName: item.title || item.name }}
                         >
-                          {item.name}
+                          {item.title || item.name}
                         </NavLink>
                       </h5>
 
                       <p className="product-desc">
                         <NavLink to={""}>
                           <span>
-                            <em>الفئة: </em> {item.category || "غير محدد"}
+                            <em>الفئة: </em>{" "}
+                            {item.category || item.subTitle || "غير محدد"}
                           </span>
                         </NavLink>
                       </p>
@@ -99,7 +107,7 @@ function CartDetails() {
                       <div className="btns d-flex align-items-center gap-2">
                         <button
                           className="btn btn-primary"
-                          onClick={() => decreaseQty(item.id)}
+                          onClick={() => decreaseQty(getItemKey(item))}
                         >
                           <FontAwesomeIcon icon={faMinus} />
                         </button>
@@ -110,7 +118,7 @@ function CartDetails() {
 
                         <button
                           className="btn btn-primary"
-                          onClick={() => increaseQty(item.id)}
+                          onClick={() => increaseQty(getItemKey(item))}
                         >
                           <FontAwesomeIcon icon={faPlus} />
                         </button>
@@ -133,7 +141,7 @@ function CartDetails() {
                     <div className="col-lg-1 col-md-2 col-12">
                       <button
                         className="remove-item"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(getItemKey(item))}
                         style={{ border: "none" }}
                       >
                         <FontAwesomeIcon icon={faXmark} />

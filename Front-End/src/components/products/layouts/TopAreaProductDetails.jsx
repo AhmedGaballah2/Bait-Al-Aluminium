@@ -211,20 +211,28 @@ function TopArea() {
                         className="btn"
                         onClick={() => {
                           if (!product) return;
+                          const wishlistItem = {
+                            ...product,
+                            type: "product",
+                            name: product.name,
+                            oldPrice: product.old_price,
+                          };
 
-                          isFavorite(product.id)
-                            ? removeFromWishlist(product.id)
-                            : addToWishlist(product);
+                          isFavorite(wishlistItem)
+                            ? removeFromWishlist(wishlistItem)
+                            : addToWishlist(wishlistItem);
                         }}
                       >
-                        {product && isFavorite(product.id)
+                        {product &&
+                        isFavorite({ id: product.id, type: "product" })
                           ? "إزالة من المفضلة "
                           : "أضف للمفضلة "}
 
                         <FontAwesomeIcon
                           icon={faHeart}
                           className={
-                            product && isFavorite(product.id)
+                            product &&
+                            isFavorite({ id: product.id, type: "product" })
                               ? "text-danger"
                               : ""
                           }

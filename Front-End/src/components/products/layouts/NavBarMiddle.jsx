@@ -124,10 +124,20 @@ function NavBarMiddle() {
                           </li>
                         ) : (
                           cartItems.map((item) => (
-                            <li key={item.id}>
+                            <li
+                              key={
+                                item.key ??
+                                `${item.type || "product"}-${item.id}`
+                              }
+                            >
                               <a
                                 className="remove"
-                                onClick={() => removeFromCart(item.id)}
+                                onClick={() =>
+                                  removeFromCart(
+                                    item.key ??
+                                      `${item.type || "product"}-${item.id}`,
+                                  )
+                                }
                                 style={{ cursor: "pointer" }}
                               >
                                 <FontAwesomeIcon icon={faXmark} />
@@ -143,10 +153,16 @@ function NavBarMiddle() {
                               <div className="content">
                                 <h4 className="text-end">
                                   <NavLink
-                                    to={`/product/${item.id}`}
-                                    state={{ productName: item.name }}
+                                    to={
+                                      item.type === "offer"
+                                        ? `/offer/${item.id}`
+                                        : `/product/${item.id}`
+                                    }
+                                    state={{
+                                      productName: item.title || item.name,
+                                    }}
                                   >
-                                    {item.name}
+                                    {item.title || item.name}
                                   </NavLink>
                                 </h4>
 

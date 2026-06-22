@@ -1,11 +1,24 @@
 from django.urls import path
-from .views import CategoryListAPIView, get_products, ReviewAPIView, related_products
+from .views import (
+    CategoryListAPIView,
+    ReviewAPIView,
+    get_products,
+    related_products,
+    dashboard_products,
+    dashboard_new_arrivals,
+    dashboard_offers,
+    dashboard_reviews,
+)
 from . import views
 
 app_name = 'products'
 
 urlpatterns = [
-    path('', views.products_list, name='products_list'),
+    path('', dashboard_products, name='dashboard_root'),
+    path('dashboard/products/', dashboard_products, name='dashboard_products'),
+    path('dashboard/new-arrivals/', dashboard_new_arrivals, name='dashboard_new_arrivals'),
+    path('dashboard/offers/', dashboard_offers, name='dashboard_offers'),
+    path('dashboard/reviews/', dashboard_reviews, name='dashboard_reviews'),
     path('<int:pk>/details/', views.product_details, name='product_details'),
     path('add/', views.add_product, name='add_product'),
     path('<int:pk>/delete/', views.delete_product, name='delete_product'),
@@ -18,6 +31,9 @@ urlpatterns = [
     path('delete-offer/<int:pk>/', views.delete_offer, name='delete_offer'),
     path('offers/', views.offers_list, name='offers_list'),
     path('offer/<int:pk>/', views.offer_details, name='offer_details'),
+    path('review/<int:pk>/', views.review_detail, name='review_detail'),
+    path('api/offers/<int:pk>/', views.offer_detail, name='offer_detail_api'),
+    path('api/offers/<int:offer_id>/reviews/', views.OfferReviewAPIView.as_view()),
     path('new-arrivals/', views.new_arrivals_list, name='new_arrivals_list'),
     path('add-new-arrival/', views.add_new_product, name='add_new_product'),
     path('edit-new-arrival/<int:pk>/', views.edit_new_product, name='edit_new_product'),

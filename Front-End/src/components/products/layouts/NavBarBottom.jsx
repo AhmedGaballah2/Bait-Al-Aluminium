@@ -143,7 +143,12 @@ function NavBarBottom() {
                       <ul className="sub-menu collapse" id="submenu-1-4">
                         {offers.map((offer) => (
                           <li key={offer.id} className="nav-item">
-                            <a href={`/offers/${offer.id}`}>{offer.title}</a>
+                            <NavLink
+                              to={`/offer/${offer.id}`}
+                              state={{ offerName: offer.title }}
+                            >
+                              {offer.title}
+                            </NavLink>
                           </li>
                         ))}
                       </ul>

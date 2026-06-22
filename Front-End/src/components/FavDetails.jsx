@@ -11,12 +11,19 @@ import { useCart } from "./products/layouts/CartContext";
 
 import { useState } from "react";
 
+const getItemKey = (item) => item.key ?? `${item.type || "product"}-${item.id}`;
+const getItemRoute = (item) =>
+  item.type === "offer" ? `/offer/${item.id}` : `/product/${item.id}`;
+
 function FavDetials() {
   const { wishlist, removeFromWishlist } = useWishlist();
 
   const { addToCart } = useCart();
 
   const [addedId, setAddedId] = useState(null);
+
+  const getAddedId = (item) =>
+    item.key ?? `${item.type || "product"}-${item.id}`;
 
   return (
     <>
@@ -49,16 +56,16 @@ function FavDetials() {
               <p className="text-center m-4 fs-5">المفضلة فارغة</p>
             ) : (
               wishlist.map((item) => (
-                <div className="cart-single-list" key={item.id}>
+                <div className="cart-single-list" key={getItemKey(item)}>
                   <div className="row align-items-center">
                     <div className="col-lg-1 col-md-1 col-12">
                       <NavLink
-                        to={`/product/${item.id}`}
-                        state={{ productName: item.name }}
+                        to={getItemRoute(item)}
+                        state={{ productName: item.title || item.name }}
                       >
                         <img
                           src={`http://127.0.0.1:8000${item.image}`}
-                          alt={item.name}
+                          alt={item.title || item.name}
                         />
                       </NavLink>
                     </div>
@@ -66,17 +73,18 @@ function FavDetials() {
                     <div className="col-lg-4 col-md-3 col-12">
                       <h5 className="product-name">
                         <NavLink
-                          to={`/product/${item.id}`}
-                          state={{ productName: item.name }}
+                          to={getItemRoute(item)}
+                          state={{ productName: item.title || item.name }}
                         >
-                          {item.name}
+                          {item.title || item.name}
                         </NavLink>
                       </h5>
 
                       <p className="product-desc">
                         <NavLink to={""}>
                           <span>
-                            <em>الفئة: </em> {item.category || "غير محدد"}
+                            <em>الفئة: </em>{" "}
+                            {item.category || item.subTitle || "غير محدد"}
                           </span>
                         </NavLink>
                       </p>
@@ -88,36 +96,40 @@ function FavDetials() {
 
                     <div className="col-lg-2 col-md-2 col-12">
                       <p>
-                        {item.old_price
-                          ? item.old_price - item.price + " جنيه"
+                        {item.oldPrice || item.old_price
+                          ? (item.oldPrice || item.old_price) -
+                            item.price +
+                            " جنيه"
                           : "0 جنيه"}
                       </p>
                     </div>
 
                     <div className="col-lg-2 col-md-2 col-12">
                       <button
-                        className={`btn ${addedId === item.id ? "added" : ""}`}
+                        className={`btn ${addedId === getAddedId(item) ? "added" : ""}`}
                         onClick={() => {
                           addToCart(
                             {
                               id: item.id,
-                              name: item.name,
+                              type: item.type || "product",
+                              name: item.title || item.name,
+                              title: item.title || item.name,
                               image: item.image,
                               price: item.price,
                               stock: item.stock,
-                              oldPrice: item.old_price,
+                              oldPrice: item.oldPrice || item.old_price,
                               category: item.category,
                             },
                             1,
                           );
 
-                          setAddedId(item.id);
+                          setAddedId(getAddedId(item));
 
                           setTimeout(() => {
                             setAddedId(null);
                           }, 2000);
                         }}
-                        disabled={addedId === item.id}
+                        disabled={addedId === getAddedId(item)}
                       >
                         <FontAwesomeIcon icon={faCartShopping} />
 
@@ -130,7 +142,7 @@ function FavDetials() {
                     <div className="col-lg-1 col-md-2 col-12">
                       <button
                         className="remove-item"
-                        onClick={() => removeFromWishlist(item.id)}
+                        onClick={() => removeFromWishlist(item)}
                         style={{ border: "none" }}
                       >
                         <FontAwesomeIcon icon={faXmark} />

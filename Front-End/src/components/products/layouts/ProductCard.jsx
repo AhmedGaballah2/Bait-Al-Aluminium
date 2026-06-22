@@ -65,6 +65,7 @@ function ProductCard({
     addToCart(
       {
         id,
+        type: "product",
         name,
         image,
         price,
