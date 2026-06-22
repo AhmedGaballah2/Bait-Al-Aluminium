@@ -184,7 +184,9 @@ function CartDetails() {
                         </li>
                       </ul>
                       <div className="button">
-                        <NavLink className="btn">الشراء</NavLink>
+                        <NavLink className="btn" to="/checkout">
+                          الشراء
+                        </NavLink>
                         <NavLink className="btn">الإستمرار في التسوق</NavLink>
                       </div>
                     </div>

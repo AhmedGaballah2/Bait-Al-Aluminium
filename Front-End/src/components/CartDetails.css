@@ -102,6 +102,8 @@
       margin-top: 40px;
 
       ul {
+        border-bottom: 1px solid #eee;
+
         li {
           font-weight: 500;
           color: #081828;

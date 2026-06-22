@@ -11,6 +11,8 @@ import ProductDetails from "./pages/ProductDetails";
 import OfferDetails from "./pages/OfferDetails";
 import Cart from "./pages/Cart";
 import Fav from "./pages/Fav";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
 
 import { CartProvider } from "./components/products/layouts/CartContext";
 import { WishlistProvider } from "./components/products/layouts/WishlistContext";
@@ -51,6 +53,8 @@ function App() {
             <Route path="/offer/:id" element={<OfferDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/fav" element={<Fav />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/checkout/success" element={<OrderSuccess />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

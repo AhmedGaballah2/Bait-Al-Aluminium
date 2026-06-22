@@ -45,6 +45,12 @@
           >
             التقييمات
           </a>
+          <a
+            class="sidebar-link {% if active_page == 'orders' %}active{% endif %}"
+            href="{% url 'products:dashboard_orders' %}"
+          >
+            الطلبات
+          </a>
         </nav>
       </aside>
 

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -6,12 +8,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
 from .forms import ProductForm, OfferForm, NewArrivalForm
-from .models import Category, NewArrival, Offer, Product, Review, OfferReview
+from .models import Category, NewArrival, Offer, Product, Review, OfferReview, Order, OrderItem
 from .serializers import (
     CategorySerializer,
     OfferSerializer,
@@ -19,6 +22,8 @@ from .serializers import (
     NewArrivalSerializer,
     ReviewSerializer,
     OfferReviewSerializer,
+    OrderSerializer,
+    OrderCreateSerializer,
 )
 
 # Create your views here.
@@ -234,7 +239,15 @@ def offer_details(request, pk):
     }
 
     return render(request, 'products/offer_details.html', context)
+@login_required
+def order_delete_view(request, pk):
+    order = get_object_or_404(Order, id=pk)
 
+    if request.method == 'POST':
+        order.delete()
+        return redirect('products:dashboard_orders')
+
+    return redirect('products:dashboard_order_detail', pk=pk)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -422,3 +435,155 @@ def related_products(request, pk):
 
     serializer = ProductSerializer(related, many=True)
     return Response(serializer.data)
+
+
+# ============ Order API Views ============
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_order(request):
+    """Create a new order from checkout"""
+    serializer = OrderCreateSerializer(data=request.data)
+    if serializer.is_valid():
+        order = serializer.save()
+        return Response(
+            OrderSerializer(order).data,
+            status=status.HTTP_201_CREATED
+        )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@login_required
+def dashboard_orders(request):
+    """Get all orders for dashboard"""
+    orders = Order.objects.all().order_by('-created_at')
+    search_query = request.GET.get('search', '').strip()
+    
+    if search_query:
+        orders = orders.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(phone__icontains=search_query)
+        )
+    
+    context = _dashboard_context(
+        request,
+        active_page='orders',
+        queryset=orders,
+        search_fields=['first_name', 'last_name', 'email', 'phone'],
+    )
+    return render(request, 'products/dashboard/orders_list.html', context)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
+def order_detail(request, pk):
+    """Get or update order details"""
+    try:
+        order = Order.objects.get(id=pk)
+    except Order.DoesNotExist:
+        return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        # Only allow updating status and notes
+        if 'status' in request.data:
+            status_value = request.data.get('status')
+            if status_value in dict(Order._meta.get_field('status').choices):
+                order.status = status_value
+        
+        if 'notes' in request.data:
+            order.notes = request.data.get('notes')
+        
+        order.save()
+        return Response(OrderSerializer(order).data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_orders(request):
+    """API endpoint to get all orders (for API calls)"""
+    orders = Order.objects.all().order_by('-created_at')
+    serializer = OrderSerializer(orders, many=True)
+    return Response(serializer.data)
+
+
+@login_required
+def order_detail_view(request, pk):
+    """Display order details page for admin and allow editing order items."""
+    order = get_object_or_404(Order, id=pk)
+    products = Product.objects.all()
+    item_update_message = None
+
+    if request.method == 'POST' and request.POST.get('action') == 'update_items':
+        item_ids = request.POST.getlist('item_id')
+        product_ids = request.POST.getlist('product_id')
+        quantities = request.POST.getlist('quantity')
+
+        total_price = Decimal('0')
+        products_count = 0
+
+        for item_id, product_id, quantity_str in zip(item_ids, product_ids, quantities):
+            try:
+                quantity = int(quantity_str)
+            except (ValueError, TypeError):
+                quantity = 0
+
+            if quantity <= 0:
+                if item_id:
+                    OrderItem.objects.filter(id=item_id, order=order).delete()
+                continue
+
+            try:
+                selected_product = Product.objects.get(id=int(product_id))
+            except (Product.DoesNotExist, ValueError, TypeError):
+                continue
+
+            if item_id:
+                item = OrderItem.objects.filter(id=item_id, order=order).first()
+                if item:
+                    item.product_id = selected_product.id
+                    item.product_name = selected_product.name
+                    item.price = selected_product.price
+                    item.quantity = quantity
+                    item.save()
+            else:
+                OrderItem.objects.create(
+                    order=order,
+                    product_id=selected_product.id,
+                    product_name=selected_product.name,
+                    price=selected_product.price,
+                    quantity=quantity,
+                )
+
+            total_price += selected_product.price * quantity
+            products_count += quantity
+
+        order.total_price = total_price
+        order.products_count = products_count
+        order.save()
+        item_update_message = 'تم تحديث منتجات الطلب بنجاح.'
+
+    context = {
+        'order': order,
+        'products': products,
+        'item_update_message': item_update_message,
+    }
+
+    return render(request, 'products/order_detail.html', context)
+
+@login_required
+def order_delete_view(request, pk):
+    order = get_object_or_404(Order, id=pk)
+
+    if request.method == 'POST':
+        order.delete()
+        return redirect('products:dashboard_orders')
+
+    return redirect('products:dashboard_order_detail', pk=pk)

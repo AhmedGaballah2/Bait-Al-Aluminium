@@ -17,6 +17,7 @@ function NavBarBottom() {
   const isShopActive = ["/cart", "/checkout", "/fav"].includes(
     location.pathname,
   );
+  const isOffersActive = location.pathname.startsWith("/offer/");
 
   const [menuActive, setMenuActive] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -124,13 +125,13 @@ function NavBarBottom() {
                           <NavLink to={"/fav"}>المفضلة</NavLink>
                         </li>
                         <li className="nav-item">
-                          <a href="product-list.html">الشراء</a>
+                          <NavLink to={"/checkout"}>الشراء</NavLink>
                         </li>
                       </ul>
                     </li>
                     <li className="nav-item">
                       <a
-                        className="dd-menu collapsed"
+                        className={`dd-menu collapsed ${isOffersActive ? "active-page" : ""}`}
                         href="javascript:void(0)"
                         data-bs-toggle="collapse"
                         data-bs-target="#submenu-1-4"

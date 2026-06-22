@@ -1,0 +1,229 @@
+{% extends 'products/base.html' %} {% block page_title %}تفاصيل الطلب 
+<!--  -->
+#{{ order.id }}{% endblock %} {% block content %}
+<div class="d-flex flex-column gap-4">
+  <div>
+    <a
+      href="{% url 'products:dashboard_orders' %}"
+      class="btn btn-secondary mb-3"
+      >&larr; العودة إلى الطلبات
+    </a>
+    <h2 class="h4">تفاصيل الطلب #{{ order.id }}</h2>
+  </div>
+
+  <!-- Order Status and Actions -->
+  <div class="card">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">حالة الطلب</h5>
+    </div>
+    <div class="card-body">
+      <form id="order-form" class="row g-3">
+        {% csrf_token %}
+        <div class="col-md-6">
+          <label for="status" class="form-label">تحديث حالة الطلب</label>
+          <select class="form-select" id="status" name="status">
+            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>لم يتم التأكيد</option>
+            <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>تم التأكيد</option>
+            <option value="in_transit" {% if order.status == 'in_transit' %}selected{% endif %}>في الطريق</option>
+            <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>تم التسليم</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">&nbsp;</label>
+          <button
+            type="button"
+            class="btn btn-primary w-100"
+            onclick="updateOrderStatus()"
+          >
+            حفظ التحديثات
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-3 row gy-2">
+        <div class="col-md-8">
+          <!-- Inline status message (replaces alert) -->
+          <div id="status-message" style="display:none;" class="mt-3"></div>
+        </div>
+        <div class="col-md-4">
+          <form method="post" action="{% url 'products:dashboard_order_delete' order.id %}" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب؟');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger w-100">حذف الطلب</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Information -->
+  <div class="card">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">معلومات العميل</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <p>
+            <strong>الاسم الكامل:</strong><br />
+            {{ order.first_name }} {{ order.last_name }}
+          </p>
+          <p>
+            <strong>البريد الإلكتروني:</strong><br />
+            {{ order.email }}
+          </p>
+          <p>
+            <strong>رقم الهاتف:</strong><br />
+            {{ order.phone }}
+          </p>
+        </div>
+        <div class="col-md-6">
+          <p>
+            <strong>تاريخ الطلب:</strong><br />
+            {{ order.created_at|date:"d/m/Y H:i" }}
+          </p>
+          <p>
+            <strong>آخر تحديث:</strong><br />
+            {{ order.updated_at|date:"d/m/Y H:i" }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shipping Address -->
+  <div class="card">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">عنوان الشحن</h5>
+    </div>
+    <div class="card-body">
+      <p><strong>المحافظة:</strong> {{ order.governorate }}</p>
+      <p><strong>المدينة:</strong> {{ order.city }}</p>
+      <p><strong>العنوان:</strong> {{ order.address }}</p>
+      {% if order.building_number %}
+      <p><strong>رقم البناية:</strong> {{ order.building_number }}</p>
+      {% endif %} {% if order.notes %}
+      <p>
+        <strong>ملاحظات:</strong>
+        <br />
+        {{ order.notes }}
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Order Items -->
+  <div class="card">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">المنتجات المطلوبة ({{ order.products_count }})</h5>
+    </div>
+    <div class="card-body">
+      {% if item_update_message %}
+      <div class="alert alert-success">{{ item_update_message }}</div>
+      {% endif %}
+      <form method="post" action="{% url 'products:dashboard_order_detail' order.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_items" />
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>المنتج</th>
+                <th>السعر</th>
+                <th>الكمية</th>
+                <th>الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order.items.all %}
+              <tr>
+                <td>
+                  <input type="hidden" name="item_id" value="{{ item.id }}" />
+                  <select name="product_id" class="form-select">
+                    {% for product in products %}
+                    <option value="{{ product.id }}" {% if product.id == item.product_id %}selected{% endif %}>
+                      {{ product.name }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <input type="text" class="form-control" value="{{ item.price }}" readonly />
+                </td>
+                <td>
+                  <input type="number" min="0" name="quantity" class="form-control" value="{{ item.quantity }}" />
+                </td>
+                <td>{{ item.price|floatformat:2 }} جنيه</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-3">
+          <button type="submit" class="btn btn-success">حفظ تغييرات المنتجات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Order Summary -->
+  <div class="card">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">ملخص الطلب</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 offset-md-6">
+          <table class="table table-borderless">
+            <tr>
+              <td><strong>إجمالي المنتجات:</strong></td>
+              <td>{{ order.total_price }} جنيه</td>
+            </tr>
+            <tr>
+              <td><strong>تكلفة الشحن:</strong></td>
+              <td>
+                {% if order.shipping_cost == 0 %} مجاني {% else %} 
+                
+                {{ order.shipping_cost }} جنيه {% endif %}
+              </td>
+            </tr>
+            <tr class="table-active fw-bold">
+              <td><strong>المبلغ الكلي:</strong></td>
+              <td>{{ order.total_price|add:order.shipping_cost }} جنيه</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script>
+  function updateOrderStatus() {
+    const status = document.getElementById("status").value;
+    const orderId = "{{ order.id }}";
+    const messageEl = document.getElementById('status-message');
+
+    fetch(`/api/orders/${orderId}/`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+      },
+      body: JSON.stringify({ status: status }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // show inline message
+        messageEl.style.display = 'block';
+        messageEl.className = 'alert alert-success';
+        messageEl.innerText = 'تم تحديث حالة الطلب بنجاح.';
+      })
+      .catch((error) => {
+        messageEl.style.display = 'block';
+        messageEl.className = 'alert alert-danger';
+        messageEl.innerText = 'حدث خطأ في تحديث حالة الطلب.';
+        console.error('Error:', error);
+      });
+  }
+  </script>
+{% endblock %}
