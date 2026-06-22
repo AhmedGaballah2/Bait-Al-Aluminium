@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const WishlistContext = createContext();
 
+const getItemKey = (item) => item.key ?? `${item.type || "product"}-${item.id}`;
+
 export function WishlistProvider({ children }) {
   const [wishlist, setWishlist] = useState(() => {
     const saved = localStorage.getItem("wishlist");
@@ -13,19 +15,31 @@ export function WishlistProvider({ children }) {
   }, [wishlist]);
 
   const addToWishlist = (product) => {
-    const exists = wishlist.some((item) => item.id === product.id);
+    const itemKey = getItemKey(product);
+    const exists = wishlist.some((item) => getItemKey(item) === itemKey);
 
     if (!exists) {
-      setWishlist([...wishlist, product]);
+      setWishlist([...wishlist, { ...product, key: itemKey }]);
     }
   };
 
-  const removeFromWishlist = (id) => {
-    setWishlist(wishlist.filter((item) => item.id !== id));
+  const removeFromWishlist = (item) => {
+    const itemKey = typeof item === "object" ? getItemKey(item) : item;
+    setWishlist(
+      wishlist.filter((wishItem) => getItemKey(wishItem) !== itemKey),
+    );
   };
 
-  const isFavorite = (id) => {
-    return wishlist.some((item) => item.id === id);
+  const isFavorite = (item) => {
+    const itemKey = typeof item === "object" ? getItemKey(item) : item;
+    const normalizedKey = `${itemKey}`.includes("-")
+      ? itemKey
+      : `product-${itemKey}`;
+
+    return wishlist.some(
+      (wishItem) =>
+        getItemKey(wishItem) === normalizedKey || wishItem.id === item,
+    );
   };
 
   return (

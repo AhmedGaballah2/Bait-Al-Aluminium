@@ -56,6 +56,7 @@ class OfferForm(forms.ModelForm):
             'price_details': 'تفاصيل السعر',
             'specs': 'المواصفات',
             'features': 'الميزات',
+            'stock': 'المخزون',
         }
     
     def __init__(self, *args, **kwargs):

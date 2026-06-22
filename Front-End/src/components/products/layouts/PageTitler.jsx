@@ -20,6 +20,10 @@ function PageTitler() {
     currentPage = location.state?.productName || "تفاصيل المنتج";
   }
 
+  if (location.pathname.startsWith("/offer/")) {
+    currentPage = location.state?.productName || "تفاصيل المنتج";
+  }
+
   return (
     <>
       <div className="titler" dir="rtl">

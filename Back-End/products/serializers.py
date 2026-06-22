@@ -1,11 +1,17 @@
 from rest_framework import serializers
-from .models import Category, NewArrival, Offer, Product, Review
+from .models import Category, NewArrival, Offer, Product, Review, OfferReview
 from django.db.models import Avg
 
 class OfferSerializer(serializers.ModelSerializer):
+    average_rating = serializers.SerializerMethodField()
+
     class Meta:
         model = Offer
         fields = '__all__'
+
+    def get_average_rating(self, obj):
+        avg = obj.reviews.aggregate(Avg("rating"))["rating__avg"]
+        return round(avg, 1) if avg else 0
 
 class NewArrivalSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,4 +47,9 @@ class CategorySerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
+        fields = "__all__"
+
+class OfferReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OfferReview
         fields = "__all__"

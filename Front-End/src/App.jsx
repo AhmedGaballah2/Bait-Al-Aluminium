@@ -8,6 +8,7 @@ import FAQ from "./pages/FAQ";
 import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./pages/NotFound";
 import ProductDetails from "./pages/ProductDetails";
+import OfferDetails from "./pages/OfferDetails";
 import Cart from "./pages/Cart";
 import Fav from "./pages/Fav";
 
@@ -47,6 +48,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/offer/:id" element={<OfferDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/fav" element={<Fav />} />
 
