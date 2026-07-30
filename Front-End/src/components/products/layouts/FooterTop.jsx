@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-import logo from "../../../assets/logo-1.webp";
+import logo from "../../../assets/Logos/Logo Footer1.png";
 
 function FooterTop() {
   return (
@@ -10,28 +10,28 @@ function FooterTop() {
           <div className="inner-content">
             <div className="row">
               <div className="inner-content-container d-flex justify-content-between align-items-center">
-                <div class="footer-logo">
+                <div className="footer-logo">
                   <NavLink to="/">
                     <img src={logo} alt="Logo" />
                   </NavLink>
                 </div>
-                <div class="footer-newsletter">
-                  <h4 class="title">
+                <div className="footer-newsletter">
+                  <h4 className="title">
                     تابعنا دائمًا
                     <span>أحدث المنتجات والعروض بين يديك أولاً</span>
                   </h4>
                 </div>
-                <div class="footer-newsletter">
+                <div className="footer-newsletter">
                   <div className="newsletter-form-head">
                     <form
                       action="#"
                       method="get"
                       target="_blank"
-                      class="newsletter-form"
+                      className="newsletter-form"
                     >
-                      <div class="button">
-                        <button class="btn btn-primary border-0 px-4">
-                          اشترك<span class="dir-part"></span>
+                      <div className="button">
+                        <button className="btn btn-primary border-0 px-4">
+                          اشترك<span className="dir-part"></span>
                         </button>
                       </div>
                       <input

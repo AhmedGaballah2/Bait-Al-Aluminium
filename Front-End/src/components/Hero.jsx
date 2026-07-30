@@ -75,7 +75,7 @@ function Hero() {
                       </h3>
 
                       <div className="button">
-                        <a href="/products" className="btn">
+                        <a href="/all-products" className="btn">
                           تسوق الآن
                         </a>
                       </div>
@@ -112,7 +112,7 @@ function Hero() {
                     <h2>! خصومات أسبوعية</h2>
                     <p>تفاصيل الخصم</p>
                     <div className="button">
-                      <a className="btn" href="product-grids.html">
+                      <a className="btn" href="/all-products">
                         تسوق الآن
                       </a>
                     </div>

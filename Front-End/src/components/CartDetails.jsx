@@ -187,7 +187,9 @@ function CartDetails() {
                         <NavLink className="btn" to="/checkout">
                           الشراء
                         </NavLink>
-                        <NavLink className="btn">الإستمرار في التسوق</NavLink>
+                        <NavLink className="btn" to={"/all-products"}>
+                          الإستمرار في التسوق
+                        </NavLink>
                       </div>
                     </div>
                   </div>

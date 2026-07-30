@@ -124,10 +124,10 @@ function ProductCard({
         </div>
 
         <div className="price">
-          <span style={{ marginLeft: "10px" }}>جنيه {price}</span>
+          <span style={{ marginLeft: "10px" }}> {price} جنيه</span>
           {oldPrice && (
             <span className="text-muted text-decoration-line-through">
-              جنيه {oldPrice}
+              {oldPrice} جنيه
             </span>
           )}
         </div>

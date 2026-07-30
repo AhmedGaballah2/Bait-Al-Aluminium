@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 
 import Preloader from "./components/products/layouts/Preloader";
+import PageTitle from "./components/PageTitle";
 import HomePage from "./pages/HomePage";
 import ContactUs from "./pages/ContactUs";
 import About from "./pages/About";
@@ -13,6 +14,7 @@ import Cart from "./pages/Cart";
 import Fav from "./pages/Fav";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
+import AllProducts from "./pages/AllProducts";
 
 import { CartProvider } from "./components/products/layouts/CartContext";
 import { WishlistProvider } from "./components/products/layouts/WishlistContext";
@@ -44,6 +46,7 @@ function App() {
 
       <WishlistProvider>
         <CartProvider>
+          <PageTitle />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/contact-us" element={<ContactUs />} />
@@ -55,6 +58,7 @@ function App() {
             <Route path="/fav" element={<Fav />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/checkout/success" element={<OrderSuccess />} />
+            <Route path="/all-products" element={<AllProducts />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

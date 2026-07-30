@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
@@ -170,14 +170,20 @@ function NavBarBottom() {
               </nav>
 
               <div className="mega-category-menu">
-                <span className="cat-button">جميع الفئات</span>
+                <NavLink to={"/all-products"}>
+                  <span className="cat-button">جميع الفئات</span>
+                </NavLink>
                 <i className="lni lni-menu px-2">
                   <FontAwesomeIcon icon={faBars} />
                 </i>
                 <ul className="sub-category">
                   {categories.map((cat) => (
                     <li key={cat.id}>
-                      <a href={`/category/${cat.id}`}>{cat.name}</a>
+                      <Link
+                        to={`/all-products?category=${encodeURIComponent(cat.name)}`}
+                      >
+                        {cat.name}
+                      </Link>
                     </li>
                   ))}
                 </ul>

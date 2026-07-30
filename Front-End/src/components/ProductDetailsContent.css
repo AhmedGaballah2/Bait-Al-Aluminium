@@ -78,7 +78,7 @@
       font-weight: 600;
       margin-bottom: 15px;
 
-      span {
+      .old-price {
         display: inline-block;
         margin-left: 15px;
         color: #888;
