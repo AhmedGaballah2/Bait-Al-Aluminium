@@ -157,7 +157,7 @@ def add_product(request):
 
         if form.is_valid():
             form.save()
-            return redirect('products:products_list')
+            return redirect("products:dashboard_products")
     else:
         form = ProductForm()
 
@@ -168,7 +168,7 @@ def delete_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
         product.delete()
-        return redirect('products:products_list')
+        return redirect("products:dashboard_products")
     return render(request, 'products/confirm_delete.html', {'product': product})
 
 @login_required
@@ -180,7 +180,7 @@ def edit_product(request, pk):
         
         if form.is_valid():
             form.save()
-            return redirect('products:products_list')
+            return redirect("products:dashboard_products")
     else:
         form = ProductForm(instance=product)
 
@@ -196,7 +196,7 @@ def add_offer(request):
 
         if form.is_valid():
             form.save()
-            return redirect('products:products_list')
+            return redirect("products:dashboard_products")
     else:
         form = OfferForm()
 
@@ -211,7 +211,7 @@ def edit_offer(request, pk):
 
         if form.is_valid():
             form.save()
-            return redirect('products:products_list')
+            return redirect("products:dashboard_products")
 
     else:
         form = OfferForm(instance=offer)
@@ -224,9 +224,9 @@ def delete_offer(request, pk):
 
     if request.method == 'POST':
         offer.delete()
-        return redirect('products:products_list')
+        return redirect("products:dashboard_products")
 
-    return redirect('products:products_list')
+    return redirect("products:dashboard_products")
 
 @login_required
 def offer_details(request, pk):
@@ -300,7 +300,7 @@ def add_new_product(request):
 
         if form.is_valid():
             form.save()
-            return redirect('products:products_list')
+            return redirect("products:dashboard_products")
     else:
         form = NewArrivalForm()
 
@@ -342,7 +342,7 @@ def edit_new_product(request, pk):
 
         if form.is_valid():
             form.save()
-            return redirect('products:products_list')
+            return redirect("products:dashboard_products")
 
     else:
         form = NewArrivalForm(instance=new_arrival)
@@ -355,9 +355,9 @@ def delete_new_product(request, pk):
 
     if request.method == 'POST':
         new_arrival.delete()
-        return redirect('products:products_list')
+        return redirect("products:dashboard_products")
 
-    return redirect('products:products_list')
+    return redirect("products:dashboard_products")
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -376,7 +376,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect('products:products_list')
+            return redirect("products:dashboard_products")
         else:
             return render(request, 'auth/login.html', {
                 'error': 'بيانات غير صحيحة'

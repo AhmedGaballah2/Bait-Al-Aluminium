@@ -172,7 +172,7 @@ function TopArea() {
               </p>
               <h3 className="price">
                 {product?.price} جنيه &nbsp;
-                <span>{product?.old_price} جنيه</span>
+                <span className="old-price">{product?.old_price} جنيه</span>
               </h3>
 
               <div className="rating" dir="rtl">

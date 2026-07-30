@@ -4,27 +4,22 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import {
   faPhone,
-  faMagnifyingGlass,
   faHeart,
   faCartShopping,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import logo from "../../../assets/Logo.webp";
+import logo from "../../../assets/Logos/Logo TopBar1.png";
 
 import { useCart } from "./CartContext";
-
-import { useWishlist } from "./WishlistContext";
+import NavbarSearchForm from "./NavbarSearchForm";
 
 function NavBarMiddle() {
   const { cartItems, removeFromCart } = useCart();
-
-  const { wishlist } = useWishlist();
 
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-
   return (
     <>
       <div className="header-middle">
@@ -36,34 +31,7 @@ function NavBarMiddle() {
               </NavLink>
             </div>
             <div className="col-lg-5 col-md-7 d-xs-none">
-              <div className="main-menu-search">
-                <div className="navbar-search search-style-5">
-                  <div className="search-select">
-                    <div className="select-position">
-                      <select id="select1">
-                        <option selected>الكل</option>
-                        <option value="1">النوع 01</option>
-                        <option value="2">النوع 02</option>
-                        <option value="3">النوع 03</option>
-                        <option value="4">النوع 04</option>
-                        <option value="5">النوع 05</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="search-input">
-                    <input
-                      type="text"
-                      placeholder="...ابحث"
-                      className="text-end"
-                    />
-                  </div>
-                  <div className="search-btn">
-                    <button>
-                      <FontAwesomeIcon icon={faMagnifyingGlass} />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <NavbarSearchForm />
             </div>
             <div className="col-lg-4 col-md-2 col-5">
               <div className="middle-right-area">
@@ -79,20 +47,18 @@ function NavBarMiddle() {
                 </div>
                 <div className="navbar-cart">
                   <div className="wishlist">
-                    <a
-                      href="javascript:void(0)"
+                    <NavLink
+                      to={"/fav"}
                       className="d-flex justify-content-center align-items-center"
                     >
-                      <NavLink to={"/fav"}>
-                        <i className="lni lni-heart">
-                          <FontAwesomeIcon
-                            icon={faHeart}
-                            style={{ color: "#081828" }}
-                          />
-                        </i>
-                      </NavLink>
-                      <span className="total-items">{wishlist.length}</span>
-                    </a>
+                      <i className="lni lni-heart">
+                        <FontAwesomeIcon
+                          icon={faHeart}
+                          style={{ color: "#081828" }}
+                        />
+                      </i>
+                      <span className="total-items">0</span>
+                    </NavLink>
                   </div>
                   <div className="cart-items">
                     <a
@@ -124,24 +90,15 @@ function NavBarMiddle() {
                           </li>
                         ) : (
                           cartItems.map((item) => (
-                            <li
-                              key={
-                                item.key ??
-                                `${item.type || "product"}-${item.id}`
-                              }
-                            >
-                              <a
+                            <li key={item.id}>
+                              <button
+                                type="button"
                                 className="remove"
-                                onClick={() =>
-                                  removeFromCart(
-                                    item.key ??
-                                      `${item.type || "product"}-${item.id}`,
-                                  )
-                                }
+                                onClick={() => removeFromCart(item.key)}
                                 style={{ cursor: "pointer" }}
                               >
                                 <FontAwesomeIcon icon={faXmark} />
-                              </a>
+                              </button>
 
                               <div className="cart-img-head">
                                 <img
@@ -158,11 +115,9 @@ function NavBarMiddle() {
                                         ? `/offer/${item.id}`
                                         : `/product/${item.id}`
                                     }
-                                    state={{
-                                      productName: item.title || item.name,
-                                    }}
+                                    state={{ productName: item.name }}
                                   >
-                                    {item.title || item.name}
+                                    {item.name}
                                   </NavLink>
                                 </h4>
 
@@ -183,10 +138,7 @@ function NavBarMiddle() {
                           <span className="total-amount">{total} جنيه</span>
                         </div>
                         <div className="button">
-                          <a
-                            href="checkout.html"
-                            className="checkout btn animate"
-                          >
+                          <a href="/checkout" className="checkout btn animate">
                             شراء
                           </a>
                         </div>

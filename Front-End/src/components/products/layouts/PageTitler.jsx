@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome } from "@fortawesome/free-solid-svg-icons";
 
 import { NavLink, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const pageNames = {
   "/contact-us": "تواصل معنا",
@@ -10,6 +11,7 @@ const pageNames = {
   "/cart": "العربة",
   "/fav": "المفضلة",
   "/checkout": "الشراء",
+  "/all-products": "جميع المنتجات",
 };
 
 function PageTitler() {
@@ -22,8 +24,14 @@ function PageTitler() {
   }
 
   if (location.pathname.startsWith("/offer/")) {
-    currentPage = location.state?.offerName || "تفاصيل المنتج";
+    currentPage = location.state?.offerName || "تفاصيل العرض";
   }
+
+  useEffect(() => {
+    document.title = currentPage
+      ? `بيت الألومنيوم - ${currentPage}`
+      : "بيت الألومنيوم";
+  }, [currentPage]);
 
   return (
     <>
@@ -32,9 +40,10 @@ function PageTitler() {
           <div className="inner-container row align-items-center">
             <div className="col-lg-6 col-md-6 col-12">
               <div className="titler-content">
-                <h1 class="page-title">{currentPage}</h1>
+                <h1 className="page-title">{currentPage}</h1>
               </div>
             </div>
+
             <div className="col-lg-6 col-md-6 col-12">
               <ul className="titler-nav text-start m-0 d-flex justify-content-end">
                 <li>
@@ -43,6 +52,7 @@ function PageTitler() {
                     &nbsp; الرئيسية
                   </NavLink>
                 </li>
+
                 <li>{currentPage}</li>
               </ul>
             </div>

@@ -32,7 +32,7 @@ function AboutUsContent() {
                     وحتى الإكسسوارات المنزلية التي تضيف لمسة جمالية وفعالية إلى
                     يومك.
                   </p>
-                  <a href="#" className="btn px-5">
+                  <a href="/all-products" className="btn px-5">
                     تسوق الآن
                   </a>
                 </div>
@@ -137,7 +137,9 @@ function AboutUsContent() {
               <h2>جاهز للتسوق؟</h2>
               <h4>تصفح منتاجتنا واكتشف الأفضل الذي يناسبك.</h4>
               <div className="btns d-flex justify-content-center align-items-center gap-3">
-                <a className="btn">تصفح المنتجات</a>
+                <a className="btn" href="/all-products">
+                  تصفح المنتجات
+                </a>
                 <NavLink to={"/contact-us"} className="btn">
                   تواصل معنا
                 </NavLink>

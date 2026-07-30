@@ -177,7 +177,7 @@ function CheckoutDetails() {
 
         clearCart();
 
-        navigate("/checkout/successs");
+        navigate("/checkout/success");
       } else {
         setSubmitError("فشل إنشاء الطلب. حاول مرة أخرى.");
         console.error("Error response:", response.status);
@@ -225,7 +225,9 @@ function CheckoutDetails() {
                   </li>
                 </ul>
                 <div className="button">
-                  <NavLink className="btn">الإستمرار في التسوق</NavLink>
+                  <NavLink className="btn" to={"/all-products"}>
+                    الإستمرار في التسوق
+                  </NavLink>
                 </div>
               </div>
             </div>
