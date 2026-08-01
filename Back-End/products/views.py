@@ -7,8 +7,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Sum, F, ExpressionWrapper, DecimalField
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+from .decorators import rate_limit
+from .utils import get_client_ip, verify_turnstile
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
@@ -89,6 +92,91 @@ def _dashboard_context(request, active_page, queryset, search_fields=None):
         'result_count': queryset.count(),
     }
 
+@login_required
+def dashboard(request):
+    # إحصائيات أساسية
+    total_products = Product.objects.count()
+    total_categories = Category.objects.count()
+    total_offers = Offer.objects.filter(is_active=True).count()
+    total_new_arrivals = NewArrival.objects.filter(is_active=True).count()
+    total_orders = Order.objects.count()
+
+    # إجمالي المبيعات من الطلبات المؤكدة وما بعدها
+    total_sales = (
+        Order.objects
+        .filter(
+            status__in=[
+                'confirmed',
+                'in_transit',
+                'delivered'
+            ]
+        )
+        .aggregate(total=Sum('total_price'))['total']
+        or 0
+    )
+
+    # حالات الطلبات
+    pending_orders = Order.objects.filter(status='pending').count()
+    confirmed_orders = Order.objects.filter(status='confirmed').count()
+    in_transit_orders = Order.objects.filter(status='in_transit').count()
+    delivered_orders = Order.objects.filter(status='delivered').count()
+
+    # المنتجات قليلة المخزون
+    low_stock_products = (
+        Product.objects
+        .filter(stock__lte=5)
+        .select_related('category')
+        .order_by('stock')[:5]
+    )
+
+    # آخر الطلبات
+    recent_orders = Order.objects.order_by('-created_at')[:8]
+
+    # أكثر المنتجات مبيعًا
+    top_products = (
+        OrderItem.objects
+        .values('product_id', 'product_name')
+        .annotate(
+            total_quantity=Sum('quantity'),
+            total_sales=Sum(
+                ExpressionWrapper(
+                    F('price') * F('quantity'),
+                    output_field=DecimalField(
+                        max_digits=12,
+                        decimal_places=2
+                    )
+                )
+            )
+        )
+        .order_by('-total_quantity')[:5]
+    )
+
+    context = {
+        'active_page': 'dashboard',
+
+        'total_products': total_products,
+        'total_categories': total_categories,
+        'total_offers': total_offers,
+        'total_new_arrivals': total_new_arrivals,
+        'total_orders': total_orders,
+        'total_sales': total_sales,
+
+        'pending_orders': pending_orders,
+        'confirmed_orders': confirmed_orders,
+        'in_transit_orders': in_transit_orders,
+        'delivered_orders': delivered_orders,
+
+        'low_stock_products': low_stock_products,
+        'recent_orders': recent_orders,
+        'top_products': top_products,
+    }
+
+    return render(
+        request,
+        'products/dashboard/dashboard.html',
+        context
+    )
+
 
 @login_required
 def dashboard_products(request):
@@ -137,6 +225,156 @@ def dashboard_reviews(request):
     )
     return render(request, 'products/dashboard/reviews_list.html', context)
 
+
+@login_required
+def dashboard_offer_reviews(request):
+    reviews = OfferReview.objects.select_related('offer').order_by('-created_at')
+
+    context = _dashboard_context(
+        request,
+        active_page='offer_reviews',
+        queryset=reviews,
+        search_fields=[
+            'name',
+            'email',
+            'comment',
+            'offer__title',
+        ],
+    )
+
+    return render(
+        request,
+        'products/dashboard/offer_reviews_list.html',
+        context
+    )
+
+
+@login_required
+def dashboard_categories(request):
+    categories = Category.objects.all().order_by('name')
+
+    search_query = request.GET.get('search', '').strip()
+
+    if search_query:
+        categories = categories.filter(name__icontains=search_query)
+
+    context = {
+        'categories': categories,
+        'search_query': search_query,
+        'active_page': 'categories',
+    }
+
+    return render(
+        request,
+        'products/dashboard/categories_list.html',
+        context
+    )
+
+
+@login_required
+def add_category(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+
+        if not name:
+            return render(
+                request,
+                'products/dashboard/category_form.html',
+                {
+                    'error': 'اسم التصنيف مطلوب.',
+                    'name': name,
+                    'active_page': 'categories',
+                }
+            )
+
+        if Category.objects.filter(name__iexact=name).exists():
+            return render(
+                request,
+                'products/dashboard/category_form.html',
+                {
+                    'error': 'هذا التصنيف موجود بالفعل.',
+                    'name': name,
+                    'active_page': 'categories',
+                }
+            )
+
+        Category.objects.create(name=name)
+
+        return redirect('products:dashboard_categories')
+
+    return render(
+        request,
+        'products/dashboard/category_form.html',
+        {
+            'active_page': 'categories',
+        }
+    )
+
+
+@login_required
+def edit_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+
+        if not name:
+            return render(
+                request,
+                'products/dashboard/category_form.html',
+                {
+                    'category': category,
+                    'error': 'اسم التصنيف مطلوب.',
+                    'name': name,
+                    'active_page': 'categories',
+                }
+            )
+
+        if Category.objects.filter(
+            name__iexact=name
+        ).exclude(pk=category.pk).exists():
+            return render(
+                request,
+                'products/dashboard/category_form.html',
+                {
+                    'category': category,
+                    'error': 'هذا التصنيف موجود بالفعل.',
+                    'name': name,
+                    'active_page': 'categories',
+                }
+            )
+
+        category.name = name
+        category.save()
+
+        return redirect('products:dashboard_categories')
+
+    return render(
+        request,
+        'products/dashboard/category_form.html',
+        {
+            'category': category,
+            'active_page': 'categories',
+        }
+    )
+
+
+@login_required
+def delete_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+
+    if request.method == 'POST':
+        category.delete()
+        return redirect('products:dashboard_categories')
+
+    return render(
+        request,
+        'products/dashboard/category_confirm_delete.html',
+        {
+            'category': category,
+            'active_page': 'categories',
+        }
+    )
 
 @login_required
 def product_details(request, pk):
@@ -275,7 +513,17 @@ class OfferReviewAPIView(APIView):
         serializer = OfferReviewSerializer(reviews, many=True)
         return Response(serializer.data)
 
+    @rate_limit(key_prefix="review", limit=settings.RATE_LIMIT_REVIEWS_PER_HOUR)
     def post(self, request, offer_id):
+        turnstile_token = request.data.get("turnstile_token")
+        client_ip = get_client_ip(request)
+
+        if not verify_turnstile(turnstile_token, remote_ip=client_ip):
+            return Response(
+                {"error": "فشل التحقق الأمني، حاول تاني."},
+                status=403
+            )
+
         data = request.data.copy()
         data["offer"] = offer_id
 
@@ -333,6 +581,35 @@ def review_detail(request, pk):
 
     return render(request, 'products/review_detail.html', context)
 
+
+@login_required
+def offer_review_detail(request, pk):
+    review = get_object_or_404(
+        OfferReview.objects.select_related('offer'),
+        pk=pk
+    )
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        review.approved = True if action == 'publish' else False
+        review.save()
+
+        return redirect(
+            'products:offer_review_detail',
+            pk=review.pk
+        )
+
+    context = {
+        'review': review,
+    }
+
+    return render(
+        request,
+        'products/offer_review_detail.html',
+        context
+    )
+
 @login_required
 def edit_new_product(request, pk):
     new_arrival = NewArrival.objects.get(id=pk)
@@ -376,7 +653,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("products:dashboard_products")
+            return redirect("products:dashboard")
         else:
             return render(request, 'auth/login.html', {
                 'error': 'بيانات غير صحيحة'
@@ -411,7 +688,17 @@ class ReviewAPIView(APIView):
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data)
 
+    @rate_limit(key_prefix="review", limit=settings.RATE_LIMIT_REVIEWS_PER_HOUR)
     def post(self, request, product_id):
+        turnstile_token = request.data.get("turnstile_token")
+        client_ip = get_client_ip(request)
+
+        if not verify_turnstile(turnstile_token, remote_ip=client_ip):
+            return Response(
+                {"error": "فشل التحقق الأمني، حاول تاني."},
+                status=403
+            )
+
         data = request.data.copy()
         data["product"] = product_id
 
@@ -440,10 +727,20 @@ def related_products(request, pk):
 # ============ Order API Views ============
 
 @csrf_exempt
+@rate_limit(key_prefix="order", limit=settings.RATE_LIMIT_ORDERS_PER_HOUR)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_order(request):
     """Create a new order from checkout"""
+    turnstile_token = request.data.get("turnstile_token")
+    client_ip = get_client_ip(request)
+
+    if not verify_turnstile(turnstile_token, remote_ip=client_ip):
+        return Response(
+            {"error": "فشل التحقق الأمني، حاول تاني."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
     serializer = OrderCreateSerializer(data=request.data)
     if serializer.is_valid():
         order = serializer.save()
@@ -492,16 +789,58 @@ def order_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        # Only allow updating status and notes
+        old_status = order.status
+
         if 'status' in request.data:
             status_value = request.data.get('status')
-            if status_value in dict(Order._meta.get_field('status').choices):
-                order.status = status_value
-        
+
+            if status_value not in dict(Order._meta.get_field('status').choices):
+                return Response(
+                    {"error": "Invalid order status"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            order.status = status_value
+
         if 'notes' in request.data:
             order.notes = request.data.get('notes')
-        
+
+        # خصم المخزون عند دخول الأوردر في مرحلة الشحن
+        if (
+            old_status not in ['in_transit', 'delivered']
+            and order.status in ['in_transit', 'delivered']
+            and not order.stock_deducted
+        ):
+            for item in order.items.all():
+
+                try:
+                    product = Product.objects.get(id=item.product_id)
+                except Product.DoesNotExist:
+                    continue
+
+                # التأكد أن المخزون يكفي
+                if product.stock < item.quantity:
+                    return Response(
+                        {
+                            "error": f"المخزون غير كافٍ للمنتج: {product.name}",
+                            "available_stock": product.stock,
+                            "requested_quantity": item.quantity
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            # بعد التأكد أن كل المنتجات متوفرة
+            for item in order.items.all():
+
+                product = Product.objects.get(id=item.product_id)
+
+                product.stock -= item.quantity
+                product.save(update_fields=['stock'])
+
+            order.stock_deducted = True
+
         order.save()
+
         return Response(OrderSerializer(order).data)
 
 

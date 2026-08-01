@@ -8,6 +8,7 @@ import Accordion from "react-bootstrap/Accordion";
 import { useCart } from "./products/layouts/CartContext";
 import { NavLink, useNavigate } from "react-router-dom";
 
+import { Turnstile } from "@marsidev/react-turnstile";
 import { useState } from "react";
 
 import { governorates } from "../components/products/data/governorates";
@@ -24,6 +25,7 @@ function CheckoutDetails() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [turnstileToken, setTurnstileToken] = useState(null);
 
   const subtotal = cartItems.reduce(
     (total, item) =>
@@ -139,10 +141,16 @@ function CheckoutDetails() {
       return;
     }
 
+    if (!turnstileToken) {
+      setSubmitError("برجاء إتمام التحقق الأمني قبل إرسال الطلب.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const orderData = {
+        turnstile_token: turnstileToken,
         first_name: formData.firstName,
         last_name: formData.lastName,
         email: formData.email,
@@ -163,7 +171,7 @@ function CheckoutDetails() {
         })),
       };
 
-      const response = await fetch("http://localhost:8000/orders/", {
+      const response = await fetch("http://localhost:8000/api/orders/create/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,7 +185,12 @@ function CheckoutDetails() {
 
         clearCart();
 
-        navigate("/checkout/success");
+        navigate("/checkout/success", {
+          replace: true,
+          state: {
+            fromCheckout: true,
+          },
+        });
       } else {
         setSubmitError("فشل إنشاء الطلب. حاول مرة أخرى.");
         console.error("Error response:", response.status);
@@ -498,6 +511,15 @@ function CheckoutDetails() {
                             <p className="form-text text-muted mt-3 mb-0 fs-5 text-center">
                               الدفع عند الاستلام
                             </p>
+                          </div>
+
+                          <div className="col-md-12 d-flex justify-content-center my-3">
+                            <Turnstile
+                              siteKey="0x4AAAAAAECwmCguDPMeHvVI"
+                              onSuccess={(token) => setTurnstileToken(token)}
+                              onExpire={() => setTurnstileToken(null)}
+                              onError={() => setTurnstileToken(null)}
+                            />
                           </div>
 
                           <div className="col-md-12">

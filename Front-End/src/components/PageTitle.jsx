@@ -14,6 +14,8 @@ function PageTitle() {
       "/faq": "اسألة متكررة",
       "/fav": "المفضلة",
       "/checkout": "الشراء",
+      "/checkout/success": "تم تسجيل طلبك",
+      "/mail-success": "تم إرسال بريدك ",
     };
 
     const pageTitle = titles[location.pathname] || "Page";

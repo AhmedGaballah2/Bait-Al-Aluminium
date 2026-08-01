@@ -7,11 +7,13 @@ import {
 
 import emailjs from "@emailjs/browser";
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 import "./ContactUsContent.css";
 
 function ContactUsContent() {
   const form = useRef();
+  const navigate = useNavigate();
   const [status, setStatus] = useState(null); // null | "sending" | "success" | "error"
 
   const sendEmail = (e) => {
@@ -27,8 +29,13 @@ function ContactUsContent() {
       )
       .then(
         () => {
-          setStatus("success");
           form.current.reset();
+          navigate("/mail-success", {
+            replace: true,
+            state: {
+              fromContactForm: true,
+            },
+          });
         },
         (error) => {
           console.error(error);

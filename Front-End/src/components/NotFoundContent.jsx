@@ -1,8 +1,12 @@
 import "./NotFoundContent.css";
 
 import { NavLink } from "react-router-dom";
+import { useEffect } from "react";
 
 function NotFoundContent() {
+  useEffect(() => {
+    document.title = "بيت الألومنيوم - الصفحة غير موجودة";
+  }, []);
   return (
     <>
       <div className="error-area" dir="rtl">

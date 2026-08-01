@@ -22,6 +22,12 @@
 
         <nav class="sidebar-nav px-3 py-4">
           <a
+            class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}"
+            href="{% url 'products:dashboard' %}"
+          >
+            الرئيسية
+          </a>
+          <a
             class="sidebar-link {% if active_page == 'products' %}active{% endif %}"
             href="{% url 'products:dashboard_products' %}"
           >
@@ -39,11 +45,23 @@
           >
             العروض
           </a>
+          <a 
+            class="sidebar-link {% if active_page == 'categories' %}active{% endif %}"
+            href="{% url 'products:dashboard_categories' %}"
+          >
+            الفئات
+          </a>
           <a
             class="sidebar-link {% if active_page == 'reviews' %}active{% endif %}"
             href="{% url 'products:dashboard_reviews' %}"
           >
             التقييمات
+          </a>
+          <a
+            class="sidebar-link {% if active_page == 'offer_reviews' %}active{% endif %}"
+            href="{% url 'products:dashboard_offer_reviews' %}"
+          >
+            تقييمات العروض
           </a>
           <a
             class="sidebar-link {% if active_page == 'orders' %}active{% endif %}"
