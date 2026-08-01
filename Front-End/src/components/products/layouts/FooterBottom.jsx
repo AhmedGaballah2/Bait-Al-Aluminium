@@ -16,7 +16,7 @@ function FooterBottom() {
             <div className="row align-items-center" dir="rtl">
               <div className="col-lg-4 col-12">
                 <div className="payment-gateway">
-                  <span>نحن نقبل: </span>
+                  <span>قريبا: </span>
                   <img src={payment} alt="#" />
                 </div>
               </div>
@@ -29,7 +29,7 @@ function FooterBottom() {
                       rel="nofollow"
                       target="_blank"
                     >
-                      Ahmed Gaballah
+                      أحمد جاب الله
                     </a>
                   </p>
                 </div>

@@ -1,6 +1,7 @@
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -32,15 +33,36 @@ function MidArea() {
   const submitReview = (e) => {
     e.preventDefault();
 
-    console.log("Submitting:", formData);
+    setReviewError(null);
+
+    if (!turnstileToken) {
+      setReviewError("برجاء إتمام التحقق الأمني قبل إرسال المراجعة.");
+      return;
+    }
 
     axios
-      .post(`http://127.0.0.1:8000/api/products/${id}/reviews/`, formData)
+      .post(`http://127.0.0.1:8000/api/products/${id}/reviews/`, {
+        ...formData,
+        turnstile_token: turnstileToken,
+      })
       .then((res) => {
         setReviews([res.data, ...reviews]);
         setShowModal(false);
+        setFormData({ name: "", email: "", rating: 5, comment: "" });
+        setTurnstileToken(null);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        if (err.response?.status === 429) {
+          setReviewError(
+            "لقد تجاوزت الحد المسموح به من المراجعات. برجاء المحاولة لاحقًا.",
+          );
+        } else if (err.response?.status === 403) {
+          setReviewError("فشل التحقق الأمني، حاول تاني.");
+        } else {
+          setReviewError("حدث خطأ أثناء إرسال المراجعة. حاول مرة أخرى.");
+        }
+        console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -55,6 +77,8 @@ function MidArea() {
   }, [id]);
 
   const [showModal, setShowModal] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState(null);
+  const [reviewError, setReviewError] = useState(null);
 
   const ratingCounts = {
     5: 0,
@@ -292,6 +316,21 @@ function MidArea() {
                     }
                   ></textarea>
                 </div>
+
+                <div className="col-12 mt-3 d-flex justify-content-center">
+                  <Turnstile
+                    siteKey="0x4AAAAAAECwmCguDPMeHvVI"
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken(null)}
+                    onError={() => setTurnstileToken(null)}
+                  />
+                </div>
+
+                {reviewError && (
+                  <div className="col-12 mt-3">
+                    <div className="alert alert-danger">{reviewError}</div>
+                  </div>
+                )}
               </div>
 
               <div className="review-footer">

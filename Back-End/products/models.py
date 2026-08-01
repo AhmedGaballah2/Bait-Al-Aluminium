@@ -28,7 +28,7 @@ class Product(models.Model):
 
     category = models.ForeignKey(
         "products.Category",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="products",
         null=True,
         blank=True
@@ -159,6 +159,8 @@ class Order(models.Model):
     
     # Status
     status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
+
+    stock_deducted = models.BooleanField(default=False)
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

@@ -9,22 +9,29 @@ from .views import (
     dashboard_offers,
     dashboard_reviews,
     dashboard_orders,
+    dashboard_categories,
+    add_category,
+    edit_category,
+    delete_category,
     create_order,
     order_detail,
     order_detail_view,
     order_delete_view,
     get_orders,
 )
+
 from . import views
 
 app_name = 'products'
 
 urlpatterns = [
+    path('dashboard/', views.dashboard, name='dashboard'),
     path('', dashboard_products, name='dashboard_root'),
     path('dashboard/products/', dashboard_products, name='dashboard_products'),
     path('dashboard/new-arrivals/', dashboard_new_arrivals, name='dashboard_new_arrivals'),
     path('dashboard/offers/', dashboard_offers, name='dashboard_offers'),
     path('dashboard/reviews/', dashboard_reviews, name='dashboard_reviews'),
+    path('dashboard/offer-reviews/', views.dashboard_offer_reviews, name='dashboard_offer_reviews'),
     path('dashboard/orders/', dashboard_orders, name='dashboard_orders'),
     path('dashboard/order/<int:pk>/', order_detail_view, name='dashboard_order_detail'),
     path('<int:pk>/details/', views.product_details, name='product_details'),
@@ -41,6 +48,7 @@ urlpatterns = [
     path('offers/', views.offers_list, name='offers_list'),
     path('offer/<int:pk>/', views.offer_details, name='offer_details'),
     path('review/<int:pk>/', views.review_detail, name='review_detail'),
+    path('offer-review/<int:pk>/', views.offer_review_detail, name='offer_review_detail'),
     path('api/offers/<int:pk>/', views.offer_detail, name='offer_detail_api'),
     path('api/offers/<int:offer_id>/reviews/', views.OfferReviewAPIView.as_view()),
     path('new-arrivals/', views.new_arrivals_list, name='new_arrivals_list'),
@@ -58,4 +66,8 @@ urlpatterns = [
     path('api/orders/create/', create_order, name='create_order'),
     path('api/orders/<int:pk>/', order_detail, name='order_detail_api'),
     path('dashboard/order/<int:pk>/delete/', order_delete_view, name='dashboard_order_delete'),
+    path('dashboard/categories/', dashboard_categories, name='dashboard_categories'),
+    path('dashboard/categories/add/', add_category, name='add_category'),
+    path('dashboard/categories/<int:pk>/edit/', edit_category, name='edit_category'),
+    path('dashboard/categories/<int:pk>/delete/', delete_category, name='delete_category'),
 ]

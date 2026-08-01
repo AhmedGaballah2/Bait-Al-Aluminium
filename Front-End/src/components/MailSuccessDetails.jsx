@@ -1,15 +1,15 @@
-import "./OrderSuccessDetails.css";
+import "./OrderSuccessDetails";
 
-import { NavLink, Navigate, useLocation } from "react-router-dom";
+import { NavLink, useLocation, Navigate } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { faTruckFast } from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 
-function OrderSuccessDetails() {
+function MailSuccessDetails() {
   const location = useLocation();
 
-  if (!location.state?.fromCheckout) {
+  if (!location.state?.fromContactForm) {
     return <Navigate to="/" replace />;
   }
 
@@ -21,13 +21,10 @@ function OrderSuccessDetails() {
             <div className="container">
               <div className="success-content">
                 <div className="icon">
-                  <FontAwesomeIcon icon={faTruckFast} />
+                  <FontAwesomeIcon icon={faEnvelope} />
                 </div>
-                <h2>تم تسجيل الطلب بنجاح!</h2>
-                <p>
-                  شكراً لطلبك. سيتم معالجة طلبك والتواصل معك للتأكيد في خلال 24
-                  ساعة.
-                </p>
+                <h2>تم إرسال بريدك بنجاح!</h2>
+                <p>نشكركم على تواصلكم معنا، وسنرد عليكم في أقرب وقت ممكن.</p>
                 <div className="button">
                   <NavLink to={"/"} className="btn">
                     العودة للصفحة الرئيسية
@@ -42,4 +39,4 @@ function OrderSuccessDetails() {
   );
 }
 
-export default OrderSuccessDetails;
+export default MailSuccessDetails;

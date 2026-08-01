@@ -22,6 +22,7 @@ import { WishlistProvider } from "./components/products/layouts/WishlistContext"
 import { useState, useEffect } from "react";
 
 import "./App.css";
+import MailSuccess from "./pages/MailSuccess";
 
 function App() {
   const location = useLocation();
@@ -58,6 +59,7 @@ function App() {
             <Route path="/fav" element={<Fav />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/checkout/success" element={<OrderSuccess />} />
+            <Route path="/mail-success" element={<MailSuccess />} />
             <Route path="/all-products" element={<AllProducts />} />
 
             <Route path="*" element={<NotFound />} />

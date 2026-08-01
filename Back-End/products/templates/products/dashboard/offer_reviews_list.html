@@ -1,0 +1,243 @@
+{% extends 'products/base.html' %}
+
+{% block page_title %}تقييمات العروض{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-column gap-3">
+
+  <div
+    class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3"
+  >
+
+    <div>
+      <h2 class="h4 mb-1">تقييمات العروض</h2>
+
+      <p class="text-muted mb-0">
+        سجلات تقييمات العملاء وردود الفعل على العروض.
+      </p>
+    </div>
+
+    <form method="get" class="search-box">
+
+      <div class="input-group">
+
+        <input
+          type="search"
+          name="search"
+          class="form-control"
+          placeholder="بحث في تقييمات العروض..."
+          value="{{ search_query }}"
+        />
+
+        <button
+          class="btn btn-outline-secondary"
+          type="submit"
+        >
+          بحث
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+
+    <span class="text-muted">
+      عدد التقييمات: {{ result_count }}
+    </span>
+
+    <div></div>
+
+  </div>
+
+
+  <div class="table-responsive shadow-sm rounded overflow-hidden bg-white">
+
+    <table class="list-table mb-0">
+
+      <thead>
+
+        <tr>
+
+          <th class="text-start">العرض</th>
+
+          <th class="text-start">الاسم</th>
+
+          <th class="text-start">البريد الإلكتروني</th>
+
+          <th class="text-start">التقييم</th>
+
+          <th class="text-start">التعليق</th>
+
+          <th class="text-start">الحالة</th>
+
+          <th class="text-start">تاريخ الإنشاء</th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        {% for review in page_obj.object_list %}
+
+        <tr
+          class="clickable-row"
+          data-href="{% url 'products:offer_review_detail' review.pk %}"
+        >
+
+          <td>
+            {{ review.offer.title }}
+          </td>
+
+          <td>
+            {{ review.name }}
+          </td>
+
+          <td>
+            {{ review.email }}
+          </td>
+
+          <td>
+            {{ review.rating }}
+          </td>
+
+          <td>
+            {{ review.comment|truncatechars:60 }}
+          </td>
+
+          <td>
+
+            {% if review.approved %}
+
+            <span class="badge bg-success">
+              منشور
+            </span>
+
+            {% else %}
+
+            <span class="badge bg-secondary">
+              غير منشور
+            </span>
+
+            {% endif %}
+
+          </td>
+
+          <td>
+            {{ review.created_at|date:'Y-m-d H:i' }}
+          </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+          <td
+            colspan="7"
+            class="py-5 text-center text-muted"
+          >
+            لا توجد تقييمات للعروض.
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  {% if page_obj.has_other_pages %}
+
+  <nav aria-label="Offer reviews pagination" class="mt-4">
+
+    <ul class="pagination mb-0">
+
+      {% if page_obj.has_previous %}
+
+      <li class="page-item">
+
+        <a
+          class="page-link"
+          href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+        >
+          السابق
+        </a>
+
+      </li>
+
+      {% else %}
+
+      <li class="page-item disabled">
+
+        <span class="page-link">
+          السابق
+        </span>
+
+      </li>
+
+      {% endif %}
+
+
+      {% for num in page_obj.paginator.page_range %}
+
+      <li
+        class="page-item {% if page_obj.number == num %}active{% endif %}"
+      >
+
+        <a
+          class="page-link"
+          href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}"
+        >
+          {{ num }}
+        </a>
+
+      </li>
+
+      {% endfor %}
+
+
+      {% if page_obj.has_next %}
+
+      <li class="page-item">
+
+        <a
+          class="page-link"
+          href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+        >
+          التالي
+        </a>
+
+      </li>
+
+      {% else %}
+
+      <li class="page-item disabled">
+
+        <span class="page-link">
+          التالي
+        </span>
+
+      </li>
+
+      {% endif %}
+
+    </ul>
+
+  </nav>
+
+  {% endif %}
+
+</div>
+
+{% endblock %}
