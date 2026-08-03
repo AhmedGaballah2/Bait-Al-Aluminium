@@ -36,7 +36,19 @@ class Product(models.Model):
 
     is_new = models.BooleanField(default=False)
 
+    is_featured_new_arrival = models.BooleanField(
+        default=False,
+        help_text="المنتج المميز اللي يظهر في قسم New Arrivals - منتج واحد بس ينفع يكون True"
+    )
+
     added_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.is_featured_new_arrival:
+            Product.objects.exclude(pk=self.pk).filter(
+                is_featured_new_arrival=True
+            ).update(is_featured_new_arrival=False)
+        super().save(*args, **kwargs)
 
     @property
     def discount(self):

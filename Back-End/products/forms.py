@@ -23,6 +23,7 @@ class ProductForm(forms.ModelForm):
             'specs': 'المواصفات',
             'features': 'الميزات',
             'is_new': 'منتج جديد؟',
+            'is_featured_new_arrival': 'منتج مميز؟',
             'added_at': 'تاريخ الإضافة',
         }
 
