@@ -324,7 +324,7 @@ def add_product(request):
 
         if form.is_valid():
             form.save()
-            return redirect("products:dashboard_products")
+            return redirect("dashboard:dashboard_products")
     else:
         form = ProductForm()
 
@@ -335,7 +335,7 @@ def delete_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
         product.delete()
-        return redirect("products:dashboard_products")
+        return redirect("dashboard:dashboard_products")
     return render(request, 'products/confirm_delete.html', {'product': product})
 
 @login_required
@@ -347,7 +347,7 @@ def edit_product(request, pk):
         
         if form.is_valid():
             form.save()
-            return redirect("products:dashboard_products")
+            return redirect("dashboard:dashboard_products")
     else:
         form = ProductForm(instance=product)
 
