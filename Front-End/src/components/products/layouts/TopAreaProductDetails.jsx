@@ -168,7 +168,12 @@ function TopArea() {
               <p className="category">
                 <FontAwesomeIcon icon={faTags} />
                 &nbsp; الفئة: &nbsp;
-                <NavLink className="link">{product?.category}</NavLink>
+                <NavLink
+                  className="link"
+                  to={`/all-products?category=${encodeURIComponent(product?.category)}`}
+                >
+                  {product?.category}
+                </NavLink>
               </p>
               <h3 className="price">
                 {product?.price} جنيه &nbsp;

@@ -42,7 +42,7 @@ function NavBarMiddle() {
 
                   <h3>
                     :للتواصل
-                    <span>(+20) 101 770 2947</span>
+                    <span>(+20) 106 937 7757</span>
                   </h3>
                 </div>
                 <div className="navbar-cart">
@@ -115,9 +115,16 @@ function NavBarMiddle() {
                                         ? `/offer/${item.id}`
                                         : `/product/${item.id}`
                                     }
-                                    state={{ productName: item.name }}
+                                    state={
+                                      item.type === "offer"
+                                        ? { offerName: item.title || item.name }
+                                        : {
+                                            productName:
+                                              item.title || item.name,
+                                          }
+                                    }
                                   >
-                                    {item.name}
+                                    {item.title || item.name}
                                   </NavLink>
                                 </h4>
 

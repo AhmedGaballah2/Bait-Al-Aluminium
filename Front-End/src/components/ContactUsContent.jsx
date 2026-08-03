@@ -14,7 +14,7 @@ import "./ContactUsContent.css";
 function ContactUsContent() {
   const form = useRef();
   const navigate = useNavigate();
-  const [status, setStatus] = useState(null); // null | "sending" | "success" | "error"
+  const [status, setStatus] = useState(null);
 
   const sendEmail = (e) => {
     e.preventDefault();
@@ -73,13 +73,14 @@ function ContactUsContent() {
                   <ContactCard
                     icon={faPhone}
                     title={"تواصلوا معنا على الرقم"}
-                    detail1={"01017702947"}
+                    detail1={"01069377757"}
+                    detail2={"01017702947"}
                   />
                   <ContactCard
                     icon={faEnvelope}
                     title={"تواصلوا عبر البريد الإلكتروني"}
-                    detail1={"agaballah223@gmail.com"}
-                    detail2={"galilio2001@gmail.com"}
+                    detail1={"beitalaluminium@gmail.com"}
+                    detail2={"agaballah223@gmail.com"}
                   />
                 </div>
               </div>
@@ -182,17 +183,40 @@ function ContactUsContent() {
 }
 
 function ContactCard({ icon, title, detail1, detail2 }) {
+  const renderItem = (item) => {
+    if (!item) return null;
+
+    // Email
+    if (item.includes("@")) {
+      return (
+        <li>
+          <a href={`mailto:${item}`}>{item}</a>
+        </li>
+      );
+    }
+
+    // Phone
+    if (/^\d+$/.test(item)) {
+      return (
+        <li>
+          <a href={`tel:${item}`}>{item}</a>
+        </li>
+      );
+    }
+
+    // Normal text (address)
+    return <li>{item}</li>;
+  };
+
   return (
-    <>
-      <div className="single-info">
-        <FontAwesomeIcon icon={icon} className="icon" />
-        <h3>{title}</h3>
-        <ul>
-          <li>{detail1}</li>
-          <li>{detail2}</li>
-        </ul>
-      </div>
-    </>
+    <div className="single-info">
+      <FontAwesomeIcon icon={icon} className="icon" />
+      <h3>{title}</h3>
+      <ul>
+        {renderItem(detail1)}
+        {renderItem(detail2)}
+      </ul>
+    </div>
   );
 }
 

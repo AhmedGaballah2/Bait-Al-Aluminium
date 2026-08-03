@@ -20,6 +20,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('', include('new_arrivals.urls', namespace='new_arrivals')),
+    path('', include('offers.urls', namespace='offers')),
+    path('', include('orders.urls', namespace='orders')),
+    path('', include('accounts.urls', namespace='accounts')),
+    path('', include('dashboard.urls', namespace='dashboard')),
     path('', include('products.urls', namespace='products')),
     path('admin/', admin.site.urls),
 ]

@@ -155,7 +155,7 @@ function CheckoutDetails() {
         last_name: formData.lastName,
         email: formData.email,
         phone: formData.phone,
-        governorate: governorate,
+        governorate,
         city: formData.city,
         address: formData.address,
         building_number: formData.buildingNumber,
@@ -163,9 +163,10 @@ function CheckoutDetails() {
         shipping_cost: shippingCost,
         products_count: cartItems.reduce((sum, item) => sum + item.quantity, 0),
         notes: formData.notes,
+
         items: cartItems.map((item) => ({
-          id: item.id,
-          name: item.name,
+          product_id: item.id,
+          product_name: item.name,
           price: item.price,
           quantity: item.quantity,
         })),

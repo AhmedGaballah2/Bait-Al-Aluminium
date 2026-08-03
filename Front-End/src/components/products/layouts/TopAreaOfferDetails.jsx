@@ -154,8 +154,13 @@ function TopAreaOffer() {
               <h2 className="title">{offer?.title}</h2>
               <p className="category">
                 <FontAwesomeIcon icon={faTags} />
-                &nbsp; العرض: &nbsp;
-                {offer?.subTitle}
+                &nbsp; الفئة: &nbsp;
+                <NavLink
+                  className="link"
+                  to={`/all-products?category=${encodeURIComponent(offer?.category)}`}
+                >
+                  {offer?.category}
+                </NavLink>
               </p>
               <h3 className="price">{offer?.price} جنيه</h3>
 

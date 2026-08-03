@@ -1,6 +1,7 @@
 import "./AllProductsContent.css";
 import "rc-slider/assets/index.css";
 import ProductCard from "./products/layouts/ProductCard";
+import OfferCard from "./products/layouts/OffersCard";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +18,7 @@ function AllProductsContent() {
 
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [offers, setOffers] = useState([]);
 
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(10000);
@@ -74,15 +76,14 @@ function AllProductsContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [categoriesRes, productsRes] = await Promise.all([
+        const [categoriesRes, productsRes, offersRes] = await Promise.all([
           api.get("/categories/"),
           api.get("/products/"),
+          api.get("/offers/"),
         ]);
 
         setCategories(categoriesRes.data);
 
-        // تحويل بيانات المنتجات القادمة من الـ API لتطابق
-        // الـ props اللي بيستنياها ProductCard، وتحويل السعر لرقم
         const mappedProducts = productsRes.data.map((p) => ({
           id: p.id,
           image: p.image,
@@ -97,6 +98,34 @@ function AllProductsContent() {
         }));
 
         setProducts(mappedProducts);
+
+        // تحويل بيانات العروض القادمة من الـ API لتطابق
+        // الـ props اللي بيستنياها OfferCard، وحساب نسبة الخصم
+        const mappedOffers = offersRes.data
+          .filter((o) => o.is_active)
+          .map((o) => {
+            const price = parseFloat(o.price);
+            const oldPrice = o.old_price ? parseFloat(o.old_price) : null;
+            const discount =
+              oldPrice && oldPrice > 0
+                ? Math.round(((oldPrice - price) / oldPrice) * 100)
+                : 0;
+
+            return {
+              id: o.id,
+              image: o.image,
+              title: o.title,
+              subTitle: o.subTitle,
+              category: o.category,
+              price,
+              oldPrice,
+              discount,
+              averageRating: o.average_rating,
+              stock: o.stock,
+            };
+          });
+
+        setOffers(mappedOffers);
       } catch (err) {
         console.error(err);
       }
@@ -116,6 +145,8 @@ function AllProductsContent() {
     acc[product.category] = (acc[product.category] || 0) + 1;
     return acc;
   }, {});
+
+  categoryCounts["العروض"] = offers.length;
 
   const filteredProducts = products.filter((product) => {
     const withinRange =
@@ -147,6 +178,34 @@ function AllProductsContent() {
     return true;
   });
 
+  const filteredOffers = offers.filter((offer) => {
+    const withinRange =
+      offer.price >= priceRange[0] && offer.price <= priceRange[1];
+
+    if (!withinRange) return false;
+
+    if (selectedPrice) {
+      const filter = priceFilters.find((f) => f.id === selectedPrice);
+
+      if (filter && !(offer.price >= filter.min && offer.price < filter.max)) {
+        return false;
+      }
+    }
+
+    if (selectedCategory && offer.category !== selectedCategory) {
+      return false;
+    }
+
+    if (
+      searchTerm.trim() &&
+      !offer.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
   // ترتيب النتائج حسب الخيار المختار من الـ select
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortOption) {
@@ -164,10 +223,30 @@ function AllProductsContent() {
     }
   });
 
+  const sortedOffers = [...filteredOffers].sort((a, b) => {
+    switch (sortOption) {
+      case "price_asc":
+        return a.price - b.price;
+      case "price_desc":
+        return b.price - a.price;
+      case "name_asc":
+        return a.title.localeCompare(b.title, "ar");
+      case "name_desc":
+        return b.title.localeCompare(a.title, "ar");
+      case "rating":
+      default:
+        return (b.averageRating || 0) - (a.averageRating || 0);
+    }
+  });
+
   // كل ما الفلاتر أو البحث أو الترتيب تتغير، رجّع عدد العناصر المعروضة لأول 12
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [priceRange, selectedPrice, selectedCategory, searchTerm, sortOption]);
+
+  const isOffersCategory = selectedCategory === "العروض";
+
+  const visibleOffers = sortedOffers.slice(0, visibleCount);
 
   // العناصر اللي هتتعرض فعليًا في الصفحة
   const visibleProducts = sortedProducts.slice(0, visibleCount);
@@ -339,7 +418,13 @@ function AllProductsContent() {
                       <h3 className="total-show-product">
                         المعروض:{" "}
                         <span>
-                          {visibleProducts.length} من {sortedProducts.length}{" "}
+                          {isOffersCategory
+                            ? visibleOffers.length
+                            : visibleProducts.length}{" "}
+                          من{" "}
+                          {isOffersCategory
+                            ? sortedOffers.length
+                            : sortedProducts.length}{" "}
                           عنصر
                         </span>
                       </h3>
@@ -356,14 +441,23 @@ function AllProductsContent() {
                   aria-labelledby="nav-grid-tab"
                 >
                   <div className="row">
-                    {visibleProducts.map((product) => (
-                      <div
-                        className="col-lg-4 col-md-6 col-12"
-                        key={product.id}
-                      >
-                        <ProductCard {...product} />
-                      </div>
-                    ))}
+                    {isOffersCategory
+                      ? visibleOffers.map((offer) => (
+                          <div
+                            className="col-lg-4 col-md-6 col-12"
+                            key={offer.id}
+                          >
+                            <OfferCard {...offer} />
+                          </div>
+                        ))
+                      : visibleProducts.map((product) => (
+                          <div
+                            className="col-lg-4 col-md-6 col-12"
+                            key={product.id}
+                          >
+                            <ProductCard {...product} />
+                          </div>
+                        ))}
                   </div>
 
                   {isLoadingMore && (

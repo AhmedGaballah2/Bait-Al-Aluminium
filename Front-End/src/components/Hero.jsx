@@ -16,7 +16,7 @@ function Hero() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/offers/")
+    fetch("http://localhost:8000/api/offers/")
       .then((res) => res.json())
       .then((data) => {
         setOffers(data);
