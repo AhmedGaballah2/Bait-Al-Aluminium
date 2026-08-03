@@ -9,12 +9,9 @@ function Hero() {
   const [newArrival, setNewArrival] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/new-arrivals/")
+    fetch("http://localhost:8000/products/?is_featured_new_arrival=true")
       .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setNewArrival(data);
-      })
+      .then((data) => setNewArrival(data))
       .catch((err) => console.log(err));
   }, []);
 
@@ -99,9 +96,9 @@ function Hero() {
                     <div className="content">
                       <h2>
                         <span>منتج جديد</span>
-                        {product.title}
+                        {product.name}
                       </h2>
-                      <h3>{product.price} جنيه</h3>
+                      <h3 dir="rtl">{product.price} جنيه</h3>
                     </div>
                   </div>
                 ))}

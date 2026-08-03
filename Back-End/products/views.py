@@ -640,8 +640,18 @@ def delete_new_product(request, pk):
 @permission_classes([AllowAny])
 def get_products(request):
     products = Product.objects.all()
+
+    is_new_param = request.GET.get('is_new')
+    if is_new_param is not None:
+        products = products.filter(is_new=is_new_param.lower() in ['true', '1', 'yes'])
+
+    is_featured_param = request.GET.get('is_featured_new_arrival')
+    if is_featured_param is not None:
+        products = products.filter(
+            is_featured_new_arrival=is_featured_param.lower() in ['true', '1', 'yes']
+        )
+
     serializer = ProductSerializer(products, many=True)
-    
     return Response(serializer.data)
 
 def login_view(request):
