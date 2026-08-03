@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <link
+      rel="icon"
+      type="/favicon.svg"
+      href="../../../media/logo/Logo Vertical.png"
+    />
+    <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"
       rel="stylesheet"
     />
@@ -23,49 +28,44 @@
         <nav class="sidebar-nav px-3 py-4">
           <a
             class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}"
-            href="{% url 'products:dashboard' %}"
+            href="{% url 'dashboard:dashboard' %}"
           >
             الرئيسية
           </a>
           <a
             class="sidebar-link {% if active_page == 'products' %}active{% endif %}"
-            href="{% url 'products:dashboard_products' %}"
+            href="{% url 'dashboard:dashboard_products' %}"
           >
             المنتجات
           </a>
-          <a
-            class="sidebar-link {% if active_page == 'new_arrivals' %}active{% endif %}"
-            href="{% url 'products:dashboard_new_arrivals' %}"
-          >
-            الجديد
-          </a>
+
           <a
             class="sidebar-link {% if active_page == 'offers' %}active{% endif %}"
-            href="{% url 'products:dashboard_offers' %}"
+            href="{% url 'offers:dashboard_offers' %}"
           >
             العروض
           </a>
           <a 
             class="sidebar-link {% if active_page == 'categories' %}active{% endif %}"
-            href="{% url 'products:dashboard_categories' %}"
+            href="{% url 'dashboard:dashboard_categories' %}"
           >
             الفئات
           </a>
           <a
             class="sidebar-link {% if active_page == 'reviews' %}active{% endif %}"
-            href="{% url 'products:dashboard_reviews' %}"
+            href="{% url 'dashboard:dashboard_reviews' %}"
           >
             التقييمات
           </a>
           <a
             class="sidebar-link {% if active_page == 'offer_reviews' %}active{% endif %}"
-            href="{% url 'products:dashboard_offer_reviews' %}"
+            href="{% url 'offers:dashboard_offer_reviews' %}"
           >
             تقييمات العروض
           </a>
           <a
             class="sidebar-link {% if active_page == 'orders' %}active{% endif %}"
-            href="{% url 'products:dashboard_orders' %}"
+            href="{% url 'orders:dashboard_orders' %}"
           >
             الطلبات
           </a>
@@ -90,7 +90,7 @@
               <div class="small text-muted">مسجل باسم</div>
               <div class="fw-semibold">{{ user.username }}</div>
               <a
-                href="{% url 'products:logout' %}"
+                href="{% url 'accounts:logout' %}"
                 class="btn btn-sm btn-outline-danger mt-2"
                 >تسجيل خروج</a
               >
@@ -107,14 +107,22 @@
 
     <style>
       body {
-        min-height: 100vh;
+        margin: 0;
+        overflow: hidden; /* منع Scroll للصفحة كلها */
       }
       .dashboard-shell {
-        overflow: hidden;
+        height: 100vh;
       }
       .dashboard-sidebar {
+        position: fixed;
+        top: 0;
+        right: 0; /* لأن الصفحة RTL */
         width: 260px;
-        min-height: 100vh;
+        height: 100vh;
+        overflow-y: auto;
+        background: #fff;
+        border-left: 1px solid #dee2e6;
+        z-index: 1000;
       }
       .sidebar-brand {
         background: #f8f9fa;
@@ -140,13 +148,18 @@
         color: #212529;
       }
       .dashboard-main {
+        margin-right: 260px; /* نفس عرض السايد بار */
+        height: 100vh;
+        overflow-y: auto;
         overflow-x: hidden;
       }
       .dashboard-header {
         position: sticky;
         top: 0;
-        z-index: 10;
+        z-index: 100;
+        background: #fff;
       }
+
       .dashboard-content {
         min-height: calc(100vh - 92px);
       }
@@ -181,11 +194,20 @@
         max-width: 420px;
       }
       @media (max-width: 992px) {
-        .dashboard-shell {
-          flex-direction: column;
+        body {
+          overflow: auto;
         }
+
         .dashboard-sidebar {
+          position: static;
           width: 100%;
+          height: auto;
+        }
+
+        .dashboard-main {
+          margin-right: 0;
+          height: auto;
+          overflow: visible;
         }
       }
     </style>

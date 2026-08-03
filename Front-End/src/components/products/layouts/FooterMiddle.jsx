@@ -10,7 +10,7 @@ function FooterMiddle() {
               <div className="col-lg-3 col-md-6 col-12">
                 <div className="single-footer f-contact">
                   <h3>كن على تواصل معنا</h3>
-                  <p className="phone">للتواصل: 01017702947</p>
+                  <p className="phone">للتواصل: 01069377757</p>
                   <ul>
                     <li>
                       <span>السبت - الخميس:</span> 10:00 صباحا - 10:00 مساء
@@ -20,8 +20,8 @@ function FooterMiddle() {
                     </li>
                   </ul>
                   <p className="mail">
-                    <a href="mailto:agaballah223@gmail.com">
-                      agaballah223@gmail.com
+                    <a href="mailto:beitalaluminium@gmail.com">
+                      beitalaluminium@gmail.com
                     </a>
                   </p>
                 </div>

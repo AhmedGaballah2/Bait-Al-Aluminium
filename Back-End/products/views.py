@@ -4,7 +4,6 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q, Sum, F, ExpressionWrapper, DecimalField
@@ -16,48 +15,29 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
-from .forms import ProductForm, OfferForm, NewArrivalForm
-from .models import Category, NewArrival, Offer, Product, Review, OfferReview, Order, OrderItem
+from .forms import ProductForm
+from .models import Category, Product, Review
+from orders.models import Order, OrderItem
 from .serializers import (
     CategorySerializer,
-    OfferSerializer,
     ProductSerializer,
-    NewArrivalSerializer,
     ReviewSerializer,
-    OfferReviewSerializer,
-    OrderSerializer,
-    OrderCreateSerializer,
 )
 
 # Create your views here.
 
 @login_required
 def products_list(request):
-    section = request.GET.get('section', 'dashboard')
     search_query = request.GET.get('search', '').strip()
-    
-    # Get all data
     products = Product.objects.all()
-    offers = Offer.objects.all()
-    new_arrivals = NewArrival.objects.all()
-    
-    # Apply search filter if query exists
+
     if search_query:
-        if section == 'products' or section == 'dashboard':
-            products = products.filter(name__icontains=search_query) | products.filter(description__icontains=search_query)
-        if section == 'offers' or section == 'dashboard':
-            offers = offers.filter(title__icontains=search_query) | offers.filter(description__icontains=search_query)
-        if section == 'new_arrivals' or section == 'dashboard':
-            new_arrivals = new_arrivals.filter(title__icontains=search_query) | new_arrivals.filter(description__icontains=search_query)
-    
+        products = products.filter(name__icontains=search_query) | products.filter(description__icontains=search_query)
+
     context = {
         'products': products,
-        'offers': offers,
-        'new_arrivals': new_arrivals,
         'total': products.count(),
-        'offerTotal': offers.count(),
-        'newArrivalTotal': new_arrivals.count(),
-        'section': section,
+        'section': 'dashboard',
         'search_query': search_query,
     }
 
@@ -97,8 +77,6 @@ def dashboard(request):
     # إحصائيات أساسية
     total_products = Product.objects.count()
     total_categories = Category.objects.count()
-    total_offers = Offer.objects.filter(is_active=True).count()
-    total_new_arrivals = NewArrival.objects.filter(is_active=True).count()
     total_orders = Order.objects.count()
 
     # إجمالي المبيعات من الطلبات المؤكدة وما بعدها
@@ -156,8 +134,6 @@ def dashboard(request):
 
         'total_products': total_products,
         'total_categories': total_categories,
-        'total_offers': total_offers,
-        'total_new_arrivals': total_new_arrivals,
         'total_orders': total_orders,
         'total_sales': total_sales,
 
@@ -191,30 +167,6 @@ def dashboard_products(request):
 
 
 @login_required
-def dashboard_new_arrivals(request):
-    new_arrivals = NewArrival.objects.order_by('-created_at')
-    context = _dashboard_context(
-        request,
-        active_page='new_arrivals',
-        queryset=new_arrivals,
-        search_fields=['title'],
-    )
-    return render(request, 'products/dashboard/new_arrivals_list.html', context)
-
-
-@login_required
-def dashboard_offers(request):
-    offers = Offer.objects.order_by('-created_at')
-    context = _dashboard_context(
-        request,
-        active_page='offers',
-        queryset=offers,
-        search_fields=['title', 'subTitle', 'description'],
-    )
-    return render(request, 'products/dashboard/offers_list.html', context)
-
-
-@login_required
 def dashboard_reviews(request):
     reviews = Review.objects.select_related('product').order_by('-created_at')
     context = _dashboard_context(
@@ -224,29 +176,6 @@ def dashboard_reviews(request):
         search_fields=['name', 'email', 'comment', 'product__name'],
     )
     return render(request, 'products/dashboard/reviews_list.html', context)
-
-
-@login_required
-def dashboard_offer_reviews(request):
-    reviews = OfferReview.objects.select_related('offer').order_by('-created_at')
-
-    context = _dashboard_context(
-        request,
-        active_page='offer_reviews',
-        queryset=reviews,
-        search_fields=[
-            'name',
-            'email',
-            'comment',
-            'offer__title',
-        ],
-    )
-
-    return render(
-        request,
-        'products/dashboard/offer_reviews_list.html',
-        context
-    )
 
 
 @login_required
@@ -428,144 +357,6 @@ def edit_product(request, pk):
     })
 
 @login_required
-def add_offer(request):
-    if request.method == 'POST':
-        form = OfferForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            form.save()
-            return redirect("products:dashboard_products")
-    else:
-        form = OfferForm()
-
-    return render(request, 'products/add_offer.html', {'form': form})
-
-@login_required
-def edit_offer(request, pk):
-    offer = Offer.objects.get(id=pk)
-
-    if request.method == 'POST':
-        form = OfferForm(request.POST, request.FILES, instance=offer)
-
-        if form.is_valid():
-            form.save()
-            return redirect("products:dashboard_products")
-
-    else:
-        form = OfferForm(instance=offer)
-
-    return render(request, 'products/edit_offer.html', {'form': form})
-
-@login_required
-def delete_offer(request, pk):
-    offer = Offer.objects.get(id=pk)
-
-    if request.method == 'POST':
-        offer.delete()
-        return redirect("products:dashboard_products")
-
-    return redirect("products:dashboard_products")
-
-@login_required
-def offer_details(request, pk):
-    offer = get_object_or_404(Offer, pk=pk)
-    approved_reviews = offer.reviews.filter(approved=True).order_by('-created_at')
-
-    context = {
-        'offer': offer,
-        'approved_reviews': approved_reviews,
-    }
-
-    return render(request, 'products/offer_details.html', context)
-@login_required
-def order_delete_view(request, pk):
-    order = get_object_or_404(Order, id=pk)
-
-    if request.method == 'POST':
-        order.delete()
-        return redirect('products:dashboard_orders')
-
-    return redirect('products:dashboard_order_detail', pk=pk)
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def offers_list(request):
-    offers = Offer.objects.filter(is_active=True)
-    serializer = OfferSerializer(offers, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def offer_detail(request, pk):
-    try:
-        offer = Offer.objects.get(pk=pk)
-    except Offer.DoesNotExist:
-        return Response({"error": "Offer not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = OfferSerializer(offer)
-    return Response(serializer.data)
-
-class OfferReviewAPIView(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request, offer_id):
-        reviews = OfferReview.objects.filter(offer_id=offer_id, approved=True)
-        serializer = OfferReviewSerializer(reviews, many=True)
-        return Response(serializer.data)
-
-    @rate_limit(key_prefix="review", limit=settings.RATE_LIMIT_REVIEWS_PER_HOUR)
-    def post(self, request, offer_id):
-        turnstile_token = request.data.get("turnstile_token")
-        client_ip = get_client_ip(request)
-
-        if not verify_turnstile(turnstile_token, remote_ip=client_ip):
-            return Response(
-                {"error": "فشل التحقق الأمني، حاول تاني."},
-                status=403
-            )
-
-        data = request.data.copy()
-        data["offer"] = offer_id
-
-        serializer = OfferReviewSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-
-        return Response(serializer.errors, status=400)
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def new_arrivals_list(request):
-    new_arrivals = NewArrival.objects.filter(is_active=True)
-    serializer = NewArrivalSerializer(new_arrivals, many=True)
-    return Response(serializer.data)
-
-@login_required
-def add_new_product(request):
-    if request.method == 'POST':
-        form = NewArrivalForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            form.save()
-            return redirect("products:dashboard_products")
-    else:
-        form = NewArrivalForm()
-
-    return render(request, 'products/add_new_product.html', {'form': form})
-
-@login_required
-def new_product_details(request, pk):
-    new_arrival = get_object_or_404(NewArrival, pk=pk)
-
-    context = {
-        'new_arrival': new_arrival
-    }
-
-    return render(request, 'products/new_product_details.html', context)
-
-
-@login_required
 def review_detail(request, pk):
     review = get_object_or_404(Review, pk=pk)
 
@@ -581,60 +372,6 @@ def review_detail(request, pk):
 
     return render(request, 'products/review_detail.html', context)
 
-
-@login_required
-def offer_review_detail(request, pk):
-    review = get_object_or_404(
-        OfferReview.objects.select_related('offer'),
-        pk=pk
-    )
-
-    if request.method == 'POST':
-        action = request.POST.get('action')
-
-        review.approved = True if action == 'publish' else False
-        review.save()
-
-        return redirect(
-            'products:offer_review_detail',
-            pk=review.pk
-        )
-
-    context = {
-        'review': review,
-    }
-
-    return render(
-        request,
-        'products/offer_review_detail.html',
-        context
-    )
-
-@login_required
-def edit_new_product(request, pk):
-    new_arrival = NewArrival.objects.get(id=pk)
-
-    if request.method == 'POST':
-        form = NewArrivalForm(request.POST, request.FILES, instance=new_arrival)
-
-        if form.is_valid():
-            form.save()
-            return redirect("products:dashboard_products")
-
-    else:
-        form = NewArrivalForm(instance=new_arrival)
-
-    return render(request, 'products/edit_new_product.html', {'form': form})
-
-@login_required
-def delete_new_product(request, pk):
-    new_arrival = NewArrival.objects.get(id=pk)
-
-    if request.method == 'POST':
-        new_arrival.delete()
-        return redirect("products:dashboard_products")
-
-    return redirect("products:dashboard_products")
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -653,26 +390,6 @@ def get_products(request):
 
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
-
-def login_view(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect("products:dashboard")
-        else:
-            return render(request, 'auth/login.html', {
-                'error': 'بيانات غير صحيحة'
-            })
-    return render(request, 'auth/login.html')
-
-def logout_view(request):
-    logout(request)
-    return redirect('products:login')
 
 class CategoryListAPIView(APIView):
     permission_classes = [AllowAny]
@@ -734,205 +451,3 @@ def related_products(request, pk):
     return Response(serializer.data)
 
 
-# ============ Order API Views ============
-
-@csrf_exempt
-@rate_limit(key_prefix="order", limit=settings.RATE_LIMIT_ORDERS_PER_HOUR)
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def create_order(request):
-    """Create a new order from checkout"""
-    turnstile_token = request.data.get("turnstile_token")
-    client_ip = get_client_ip(request)
-
-    if not verify_turnstile(turnstile_token, remote_ip=client_ip):
-        return Response(
-            {"error": "فشل التحقق الأمني، حاول تاني."},
-            status=status.HTTP_403_FORBIDDEN
-        )
-
-    serializer = OrderCreateSerializer(data=request.data)
-    if serializer.is_valid():
-        order = serializer.save()
-        return Response(
-            OrderSerializer(order).data,
-            status=status.HTTP_201_CREATED
-        )
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET'])
-@login_required
-def dashboard_orders(request):
-    """Get all orders for dashboard"""
-    orders = Order.objects.all().order_by('-created_at')
-    search_query = request.GET.get('search', '').strip()
-    
-    if search_query:
-        orders = orders.filter(
-            Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query) |
-            Q(email__icontains=search_query) |
-            Q(phone__icontains=search_query)
-        )
-    
-    context = _dashboard_context(
-        request,
-        active_page='orders',
-        queryset=orders,
-        search_fields=['first_name', 'last_name', 'email', 'phone'],
-    )
-    return render(request, 'products/dashboard/orders_list.html', context)
-
-
-@api_view(['GET', 'PUT'])
-@permission_classes([AllowAny])
-def order_detail(request, pk):
-    """Get or update order details"""
-    try:
-        order = Order.objects.get(id=pk)
-    except Order.DoesNotExist:
-        return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
-    
-    if request.method == 'GET':
-        serializer = OrderSerializer(order)
-        return Response(serializer.data)
-    
-    elif request.method == 'PUT':
-        old_status = order.status
-
-        if 'status' in request.data:
-            status_value = request.data.get('status')
-
-            if status_value not in dict(Order._meta.get_field('status').choices):
-                return Response(
-                    {"error": "Invalid order status"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            order.status = status_value
-
-        if 'notes' in request.data:
-            order.notes = request.data.get('notes')
-
-        # خصم المخزون عند دخول الأوردر في مرحلة الشحن
-        if (
-            old_status not in ['in_transit', 'delivered']
-            and order.status in ['in_transit', 'delivered']
-            and not order.stock_deducted
-        ):
-            for item in order.items.all():
-
-                try:
-                    product = Product.objects.get(id=item.product_id)
-                except Product.DoesNotExist:
-                    continue
-
-                # التأكد أن المخزون يكفي
-                if product.stock < item.quantity:
-                    return Response(
-                        {
-                            "error": f"المخزون غير كافٍ للمنتج: {product.name}",
-                            "available_stock": product.stock,
-                            "requested_quantity": item.quantity
-                        },
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-
-            # بعد التأكد أن كل المنتجات متوفرة
-            for item in order.items.all():
-
-                product = Product.objects.get(id=item.product_id)
-
-                product.stock -= item.quantity
-                product.save(update_fields=['stock'])
-
-            order.stock_deducted = True
-
-        order.save()
-
-        return Response(OrderSerializer(order).data)
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def get_orders(request):
-    """API endpoint to get all orders (for API calls)"""
-    orders = Order.objects.all().order_by('-created_at')
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
-
-
-@login_required
-def order_detail_view(request, pk):
-    """Display order details page for admin and allow editing order items."""
-    order = get_object_or_404(Order, id=pk)
-    products = Product.objects.all()
-    item_update_message = None
-
-    if request.method == 'POST' and request.POST.get('action') == 'update_items':
-        item_ids = request.POST.getlist('item_id')
-        product_ids = request.POST.getlist('product_id')
-        quantities = request.POST.getlist('quantity')
-
-        total_price = Decimal('0')
-        products_count = 0
-
-        for item_id, product_id, quantity_str in zip(item_ids, product_ids, quantities):
-            try:
-                quantity = int(quantity_str)
-            except (ValueError, TypeError):
-                quantity = 0
-
-            if quantity <= 0:
-                if item_id:
-                    OrderItem.objects.filter(id=item_id, order=order).delete()
-                continue
-
-            try:
-                selected_product = Product.objects.get(id=int(product_id))
-            except (Product.DoesNotExist, ValueError, TypeError):
-                continue
-
-            if item_id:
-                item = OrderItem.objects.filter(id=item_id, order=order).first()
-                if item:
-                    item.product_id = selected_product.id
-                    item.product_name = selected_product.name
-                    item.price = selected_product.price
-                    item.quantity = quantity
-                    item.save()
-            else:
-                OrderItem.objects.create(
-                    order=order,
-                    product_id=selected_product.id,
-                    product_name=selected_product.name,
-                    price=selected_product.price,
-                    quantity=quantity,
-                )
-
-            total_price += selected_product.price * quantity
-            products_count += quantity
-
-        order.total_price = total_price
-        order.products_count = products_count
-        order.save()
-        item_update_message = 'تم تحديث منتجات الطلب بنجاح.'
-
-    context = {
-        'order': order,
-        'products': products,
-        'item_update_message': item_update_message,
-    }
-
-    return render(request, 'products/order_detail.html', context)
-
-@login_required
-def order_delete_view(request, pk):
-    order = get_object_or_404(Order, id=pk)
-
-    if request.method == 'POST':
-        order.delete()
-        return redirect('products:dashboard_orders')
-
-    return redirect('products:dashboard_order_detail', pk=pk)

@@ -1,0 +1,74 @@
+{% extends 'products/base.html' %} {% block title %}بيت الألومنيوم - المنتجات{% endblock %}
+{% block page_title %}المنتجات{% endblock %}
+{% block content %}
+<div class="d-flex flex-column gap-3">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+    <div>
+      <h2 class="h4 mb-1">المنتجات</h2>
+      <p class="text-muted mb-0">عرض جميع المنتجات مع تفاصيل القسم والسعر والمخزون.</p>
+    </div>
+    <form method="get" class="search-box">
+      <div class="input-group">
+        <input type="search" name="search" class="form-control" placeholder="بحث في المنتجات..." value="{{ search_query }}" />
+        <button class="btn btn-outline-secondary" type="submit">بحث</button>
+      </div>
+    </form>
+  </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">عدد المنتجات: {{ result_count }}</span>
+    <a href="{% url 'products:add_product' %}" class="btn btn-primary">إضافة منتج</a>
+  </div>
+  <div class="table-responsive shadow-sm rounded overflow-hidden bg-white">
+    <table class="list-table mb-0">
+      <thead>
+        <tr>
+          <th class="text-start">الاسم</th>
+          <th class="text-start">القسم</th>
+          <th class="text-start">السعر</th>
+          <th class="text-start">السعر القديم</th>
+          <th class="text-start">الخصم</th>
+          <th class="text-start">المخزون</th>
+          <th class="text-start">الحالة</th>
+          <th class="text-start">تاريخ الإضافة</th>
+          <th class="text-center">إجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in page_obj.object_list %}
+        <tr class="clickable-row" data-href="{% url 'products:product_details' product.pk %}">
+          <td>{{ product.name }}</td>
+          <td>{{ product.category }}</td>
+          <td>{{ product.price }}</td>
+          <td>{% if product.old_price %}{{ product.old_price }}{% else %}-{% endif %}</td>
+          <td>{% if product.discount > 0 %}{{ product.discount }}%{% else %}-{% endif %}</td>
+          <td>{{ product.stock }}</td>
+          <td>{% if product.is_new %}<span class="badge bg-success">جديد</span>{% else %}<span class="badge bg-secondary">عادي</span>{% endif %}</td>
+          <td>{{ product.added_at|date:'Y-m-d H:i' }}</td>
+          <td class="text-end table-actions">
+            <a href="{% url 'products:product_details' product.pk %}" class="btn btn-sm btn-outline-primary">عرض</a>
+            <a href="{% url 'products:edit_product' product.pk %}" class="btn btn-sm btn-outline-secondary">تعديل</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="py-5 text-center text-muted">لا توجد منتجات مطابقة للبحث.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.has_other_pages %}
+  <nav aria-label="Products pagination" class="mt-4">
+    <ul class="pagination mb-0">
+      {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">السابق</a></li>
+      {% else %}<li class="page-item disabled"><span class="page-link">السابق</span></li>{% endif %}
+      {% for num in page_obj.paginator.page_range %}
+      <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">التالي</a></li>
+      {% else %}<li class="page-item disabled"><span class="page-link">التالي</span></li>{% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'products/base.html' %} {% block content %}
+<div class="container py-5">
+  <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+      <h2 class="h4 mb-0">{{ new_arrival.title }}</h2>
+      <div class="d-flex gap-2">
+        <a href="{% url 'new_arrivals:edit_new_product' new_arrival.id %}" class="btn btn-sm btn-primary w-50">تعديل</a>
+        <form method="POST" action="{% url 'new_arrivals:delete_new_product' new_arrival.id %}" onsubmit="return confirm('هل أنت متأكد من حذف المنتج؟');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm">حذف</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card-body p-4">
+      <div class="row g-4 align-items-center">
+        <div class="col-md-5">
+          <img src="{{ new_arrival.image.url }}" class="img-fluid rounded-4 shadow-sm w-100" style="height: 350px; object-fit: cover" alt="{{ new_arrival.title }}" />
+        </div>
+
+        <div class="col-md-7">
+          <ul class="list-group list-group-flush fs-5">
+            <li class="list-group-item">
+              <strong>السعر الحالي:</strong>
+              <span class="text-success fw-bold">{{ new_arrival.price }} جنيه</span>
+            </li>
+            <li class="list-group-item">
+              <strong>تاريخ الإضافة:</strong>
+              {{ new_arrival.created_at }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

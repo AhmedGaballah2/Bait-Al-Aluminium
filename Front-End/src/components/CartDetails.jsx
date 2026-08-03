@@ -74,7 +74,11 @@ function CartDetails() {
                     <div className="col-lg-1 col-md-1 col-12">
                       <NavLink
                         to={getItemRoute(item)}
-                        state={{ productName: item.title || item.name }}
+                        state={
+                          item.type === "offer"
+                            ? { offerName: item.title || item.name }
+                            : { productName: item.title || item.name }
+                        }
                       >
                         <img
                           src={`http://127.0.0.1:8000${item.image}`}
@@ -87,7 +91,11 @@ function CartDetails() {
                       <h5 className="product-name">
                         <NavLink
                           to={getItemRoute(item)}
-                          state={{ productName: item.title || item.name }}
+                          state={
+                            item.type === "offer"
+                              ? { offerName: item.title || item.name }
+                              : { productName: item.title || item.name }
+                          }
                         >
                           {item.title || item.name}
                         </NavLink>

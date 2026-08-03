@@ -31,6 +31,10 @@
   height: 350px;
 }
 
+.single-product .offer-image {
+  height: 220px; /* بدل الـ 350px الافتراضي */
+}
+
 .single-product .product-image .sale-tag {
   background: #f73232;
   border-radius: 2px;

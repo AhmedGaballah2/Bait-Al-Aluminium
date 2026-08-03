@@ -60,16 +60,14 @@ function FooterBottom() {
                     </a>
                   </li>
                   <li>
-                    <a href="javascript:void(0)">
+                    <a
+                      href="https://wa.me/201069377757"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="WhatsApp"
+                    >
                       <i className="lni lni-instagram">
                         <FontAwesomeIcon icon={faWhatsapp} />
-                      </i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="javascript:void(0)">
-                      <i className="lni lni-google">
-                        <FontAwesomeIcon icon={faTelegram} />
                       </i>
                     </a>
                   </li>

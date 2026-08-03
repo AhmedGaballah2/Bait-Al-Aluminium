@@ -13,7 +13,9 @@ import {
 function NavBarBottom() {
   const location = useLocation();
 
-  const isPagesActive = ["/about", "/faq"].includes(location.pathname);
+  const isPagesActive = ["/about", "/faq", "/contact-us"].includes(
+    location.pathname,
+  );
   const isShopActive = ["/cart", "/checkout", "/fav"].includes(
     location.pathname,
   );
@@ -35,7 +37,7 @@ function NavBarBottom() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/offers/")
+    fetch("http://localhost:8000/api/offers/")
       .then((res) => res.json())
       .then((data) => setOffers(data))
       .catch((err) => console.log(err));
@@ -80,31 +82,7 @@ function NavBarBottom() {
                         الرئيسية
                       </NavLink>
                     </li>
-                    <li className="nav-item">
-                      <a
-                        className={`dd-menu collapsed ${isPagesActive ? "active-page" : ""}`}
-                        href="javascript:void(0)"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#submenu-1-2"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation"
-                      >
-                        الصفحات
-                      </a>
-                      <ul className="sub-menu collapse" id="submenu-1-2">
-                        <li className="nav-item">
-                          <NavLink className="nav-item" to="/about">
-                            من نحن؟
-                          </NavLink>
-                        </li>
-                        <li className="nav-item">
-                          <NavLink className="nav-item" to="/faq">
-                            أسألة متكرره
-                          </NavLink>
-                        </li>
-                      </ul>
-                    </li>
+
                     <li className="nav-item">
                       <a
                         className={`dd-menu collapsed ${isShopActive ? "active-page" : ""}`}
@@ -154,16 +132,36 @@ function NavBarBottom() {
                         ))}
                       </ul>
                     </li>
+
                     <li className="nav-item">
-                      <NavLink
-                        className={({ isActive }) =>
-                          isActive ? "nav-link active" : "nav-link"
-                        }
-                        to="/contact-us"
+                      <a
+                        className={`dd-menu collapsed ${isPagesActive ? "active-page" : ""}`}
+                        href="javascript:void(0)"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#submenu-1-2"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
                         aria-label="Toggle navigation"
                       >
-                        تواصل معنا
-                      </NavLink>
+                        المزيد
+                      </a>
+                      <ul className="sub-menu collapse" id="submenu-1-2">
+                        <li className="nav-item">
+                          <NavLink className="nav-item" to="/about">
+                            من نحن؟
+                          </NavLink>
+                        </li>
+                        <li className="nav-item">
+                          <NavLink className="nav-item" to="/faq">
+                            أسألة متكرره
+                          </NavLink>
+                        </li>
+                        <li className="nav-item">
+                          <NavLink className="nav-item" to="/contact-us">
+                            تواصل معنا
+                          </NavLink>
+                        </li>
+                      </ul>
                     </li>
                   </ul>
                 </div>
@@ -194,7 +192,10 @@ function NavBarBottom() {
             <div className="nav-social">
               <ul style={{ marginTop: "0", marginBottom: "0" }}>
                 <li>
-                  <a href="javascript:void(0)">
+                  <a
+                    href="https://www.facebook.com/profile.php?id=100088477002335"
+                    target="_blank"
+                  >
                     <i className="lni">
                       <FontAwesomeIcon
                         icon={faFacebook}
@@ -204,7 +205,10 @@ function NavBarBottom() {
                   </a>
                 </li>
                 <li>
-                  <a href="javascript:void(0)">
+                  <a
+                    href="https://www.instagram.com/_aluminum_home/"
+                    target="_blank"
+                  >
                     <i className="lni">
                       <FontAwesomeIcon
                         icon={faInstagram}
@@ -214,20 +218,15 @@ function NavBarBottom() {
                   </a>
                 </li>
                 <li>
-                  <a href="javascript:void(0)">
+                  <a
+                    href="https://wa.me/201069377757"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="WhatsApp"
+                  >
                     <i className="lni">
                       <FontAwesomeIcon
                         icon={faWhatsapp}
-                        style={{ color: "#081828" }}
-                      />
-                    </i>
-                  </a>
-                </li>
-                <li>
-                  <a href="javascript:void(0)">
-                    <i className="lni">
-                      <FontAwesomeIcon
-                        icon={faTelegram}
                         style={{ color: "#081828" }}
                       />
                     </i>
