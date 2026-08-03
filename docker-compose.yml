@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:17
+    container_name: aluminium_db
+
+    restart: always
+
+    environment:
+      POSTGRES_DB: aluminium
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./Back-End
+
+    container_name: aluminium_backend
+
+    command: >
+      sh -c "
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000
+      "
+
+    volumes:
+      - ./Back-End:/app
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      - db
+
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: ./Front-End
+
+    container_name: aluminium_frontend
+
+    ports:
+      - "5173:5173"
+
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

@@ -1,6 +1,16 @@
 import { NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 function FooterMiddle() {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/categories/")
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.log(err));
+  }, []);
+
   return (
     <>
       <div className="footer-middle">
@@ -61,21 +71,15 @@ function FooterMiddle() {
                 <div className="single-footer f-link">
                   <h3>أقسام التسوق</h3>
                   <ul>
-                    <li>
-                      <a href="javascript:void(0)">الألومنيوم</a>
-                    </li>
-                    <li>
-                      <a href="javascript:void(0)">الإستانلس</a>
-                    </li>
-                    <li>
-                      <a href="javascript:void(0)">الجرانيت</a>
-                    </li>
-                    <li>
-                      <a href="javascript:void(0)">الملامين</a>
-                    </li>
-                    <li>
-                      <a href="javascript:void(0)">المطابخ</a>
-                    </li>
+                    {categories.map((cat) => (
+                      <li key={cat.id}>
+                        <NavLink
+                          to={`/all-products?category=${encodeURIComponent(cat.name)}`}
+                        >
+                          {cat.name}
+                        </NavLink>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
