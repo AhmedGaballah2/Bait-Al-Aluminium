@@ -198,3 +198,17 @@ def order_delete_view(request, pk):
         return redirect('orders:dashboard_orders')
 
     return redirect('orders:dashboard_order_detail', pk=pk)
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def track_order(request, tracking_number):
+    try:
+        order = Order.objects.get(tracking_number=tracking_number)
+    except Order.DoesNotExist:
+        return Response(
+            {"error": "لم يتم العثور على طلب بهذا الرقم."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    serializer = OrderSerializer(order)
+    return Response(serializer.data)

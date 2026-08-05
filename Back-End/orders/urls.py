@@ -12,4 +12,5 @@ urlpatterns = [
     path('api/orders/', views.get_orders, name='get_orders'),
     path('api/orders/create/', views.create_order, name='create_order'),
     path('api/orders/<int:pk>/', views.order_detail, name='order_detail_api'),
+    path("api/orders/track/<str:tracking_number>/", views.track_order, name="track_order"),
 ]

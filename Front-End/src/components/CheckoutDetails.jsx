@@ -182,6 +182,7 @@ function CheckoutDetails() {
 
       if (response.ok) {
         const result = await response.json();
+
         console.log("Order created successfully:", result);
 
         clearCart();
@@ -190,6 +191,7 @@ function CheckoutDetails() {
           replace: true,
           state: {
             fromCheckout: true,
+            trackingNumber: result.tracking_number,
           },
         });
       } else {

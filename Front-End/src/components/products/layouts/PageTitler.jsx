@@ -12,6 +12,7 @@ const pageNames = {
   "/fav": "المفضلة",
   "/checkout": "الشراء",
   "/all-products": "جميع المنتجات",
+  "/order-tracker": "تتبع طلبك",
 };
 
 function PageTitler() {
