@@ -7,7 +7,6 @@ import {
   faFacebook,
   faInstagram,
   faWhatsapp,
-  faTelegram,
 } from "@fortawesome/free-brands-svg-icons";
 
 function NavBarBottom() {
@@ -16,9 +15,12 @@ function NavBarBottom() {
   const isPagesActive = ["/about", "/faq", "/contact-us"].includes(
     location.pathname,
   );
-  const isShopActive = ["/cart", "/checkout", "/fav"].includes(
-    location.pathname,
-  );
+  const isShopActive = [
+    "/cart",
+    "/checkout",
+    "/fav",
+    "/order-tracker",
+  ].includes(location.pathname);
   const isOffersActive = location.pathname.startsWith("/offer/");
 
   const [menuActive, setMenuActive] = useState(false);
@@ -104,6 +106,9 @@ function NavBarBottom() {
                         </li>
                         <li className="nav-item">
                           <NavLink to={"/checkout"}>الشراء</NavLink>
+                        </li>
+                        <li className="nav-item">
+                          <NavLink to={"/order-tracker"}>تتبع طلبك</NavLink>
                         </li>
                       </ul>
                     </li>

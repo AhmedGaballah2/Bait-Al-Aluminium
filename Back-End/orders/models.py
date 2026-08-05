@@ -1,5 +1,12 @@
 from django.db import models
+import random
 
+def generate_tracking_number():
+    while True:
+        number = str(random.randint(100000, 999999))
+
+        if not Order.objects.filter(tracking_number=number).exists():
+            return number
 
 class Order(models.Model):
     ORDER_STATUS_CHOICES = [
@@ -24,6 +31,12 @@ class Order(models.Model):
     products_count = models.PositiveIntegerField()
 
     status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
+    tracking_number = models.CharField(
+        max_length=6,
+        unique=True,
+        editable=False,
+        db_index=True,
+    )
     stock_deducted = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -35,6 +48,12 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order #{self.id} - {self.first_name} {self.last_name}"
+
+    def save(self, *args, **kwargs):
+        if not self.tracking_number:
+            self.tracking_number = generate_tracking_number()
+
+        super().save(*args, **kwargs)
 
 
 class OrderItem(models.Model):

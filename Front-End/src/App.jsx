@@ -13,6 +13,7 @@ import OfferDetails from "./pages/OfferDetails";
 import Cart from "./pages/Cart";
 import Fav from "./pages/Fav";
 import Checkout from "./pages/Checkout";
+import OrderTracker from "./pages/OrderTracker";
 import OrderSuccess from "./pages/OrderSuccess";
 import AllProducts from "./pages/AllProducts";
 
@@ -59,6 +60,7 @@ function App() {
             <Route path="/fav" element={<Fav />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/checkout/success" element={<OrderSuccess />} />
+            <Route path="/order-tracker" element={<OrderTracker />} />
             <Route path="/mail-success" element={<MailSuccess />} />
             <Route path="/all-products" element={<AllProducts />} />
 

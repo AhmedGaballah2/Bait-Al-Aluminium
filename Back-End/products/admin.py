@@ -18,10 +18,25 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'first_name', 'last_name', 'phone', 'products_count', 'total_price', 'status', 'created_at']
+    list_display = [
+        'id',
+        'tracking_number',
+        'first_name',
+        'last_name',
+        'phone',
+        'products_count',
+        'total_price',
+        'status',
+        'created_at'
+    ]
     list_filter = ['status', 'created_at']
     search_fields = ['first_name', 'last_name', 'email', 'phone']
-    readonly_fields = ['created_at', 'updated_at', 'id']
+    readonly_fields = [
+        'id',
+        'tracking_number',
+        'created_at',
+        'updated_at',
+    ]
     inlines = [OrderItemInline]
     
     fieldsets = (
@@ -35,7 +50,12 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('total_price', 'shipping_cost', 'products_count', 'status', 'notes')
         }),
         ('المعلومات التقنية', {
-            'fields': ('id', 'created_at', 'updated_at'),
+            'fields': (
+                'id',
+                'tracking_number',
+                'created_at',
+                'updated_at',
+            ),
             'classes': ('collapse',)
         }),
     )
