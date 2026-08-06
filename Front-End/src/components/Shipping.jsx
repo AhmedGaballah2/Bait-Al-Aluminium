@@ -16,7 +16,7 @@ function Shipping() {
             <li>
               <ShippingCard
                 title="شحن مجاني"
-                desc="على الطلبات التي تزيد قيمتها عن 500 جنيه"
+                desc="على الطلبات التي تزيد قيمتها عن 2500 جنيه"
                 icon={faTruckFast}
               />
             </li>

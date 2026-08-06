@@ -2,25 +2,128 @@
 {% block title %}بيت الألومنيوم - العروض{% endblock %}
 {% block page_title %}العروض{% endblock %}
 {% block content %}
+<style>
+  .list-toolbar {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.1rem 1.4rem;
+    box-shadow: 0 4px 16px rgba(15, 27, 45, 0.05);
+  }
+
+  .list-toolbar h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  .search-box .form-control {
+    border-radius: 10px 0 0 10px;
+    border: 1.5px solid #e3e7ed;
+  }
+
+  .search-box .btn {
+    border-radius: 0 10px 10px 0;
+    background: var(--blue);
+    border: 1.5px solid var(--blue);
+    color: #fff;
+  }
+
+  .search-box .btn:hover {
+    background: var(--blue-dark);
+  }
+
+  .count-pill {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 999px;
+  }
+
+  .btn-add {
+    background: var(--blue);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 10px;
+  }
+
+  .btn-add:hover {
+    background: var(--blue-dark);
+    color: #fff;
+  }
+
+  .btn-view-sm {
+    background: transparent;
+    border: 1.5px solid var(--blue);
+    color: var(--blue);
+    font-weight: 600;
+    font-size: 12.5px;
+    border-radius: 8px;
+  }
+
+  .btn-view-sm:hover {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .btn-edit-sm {
+    background: transparent;
+    border: 1.5px solid #e3e7ed;
+    color: var(--navy);
+    font-weight: 600;
+    font-size: 12.5px;
+    border-radius: 8px;
+  }
+
+  .btn-edit-sm:hover {
+    background: #f4f6f9;
+  }
+
+  .active-yes {
+    color: #1c7c40;
+    font-weight: 700;
+  }
+
+  .active-no {
+    color: #9aa4b2;
+    font-weight: 600;
+  }
+
+  .pagination .page-link {
+    color: var(--blue);
+    border-radius: 8px;
+    margin: 0 2px;
+    border: 1.5px solid #e3e7ed;
+  }
+
+  .pagination .page-item.active .page-link {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+</style>
+
 <div class="d-flex flex-column gap-3">
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+  <div class="list-toolbar d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
     <div>
-      <h2 class="h4 mb-1">العروض</h2>
+      <h2 class="mb-1">العروض</h2>
       <p class="text-muted mb-0">إدارة عروض المتجر.</p>
     </div>
     <form method="get" class="search-box">
       <div class="input-group">
         <input type="search" name="search" class="form-control" placeholder="بحث في العروض..." value="{{ search_query }}" />
-        <button class="btn btn-outline-secondary" type="submit">بحث</button>
+        <button class="btn" type="submit">بحث</button>
       </div>
     </form>
   </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <span class="text-muted">عدد العروض: {{ result_count }}</span>
-    <a href="{% url 'offers:add_offer' %}" class="btn btn-primary">إضافة عرض</a>
+  <div class="d-flex justify-content-between align-items-center">
+    <span class="count-pill">عدد العروض: {{ result_count }}</span>
+    <a href="{% url 'offers:add_offer' %}" class="btn btn-add">إضافة عرض</a>
   </div>
-  <div class="table-responsive shadow-sm rounded overflow-hidden bg-white">
+
+  <div class="table-responsive rounded-4 overflow-hidden bg-white" style="box-shadow: 0 4px 16px rgba(15,27,45,0.05);">
     <table class="list-table mb-0">
       <thead>
         <tr>
@@ -36,11 +139,11 @@
         <tr class="clickable-row" data-href="{% url 'offers:offer_details' offer.pk %}">
           <td>{{ offer.title }}</td>
           <td>{{ offer.price }}</td>
-          <td>{% if offer.is_active %}نعم{% else %}لا{% endif %}</td>
+          <td>{% if offer.is_active %}<span class="active-yes">نعم</span>{% else %}<span class="active-no">لا</span>{% endif %}</td>
           <td>{{ offer.created_at|date:'Y-m-d H:i' }}</td>
           <td class="text-end table-actions">
-            <a href="{% url 'offers:offer_details' offer.pk %}" class="btn btn-sm btn-outline-primary">عرض</a>
-            <a href="{% url 'offers:edit_offer' offer.pk %}" class="btn btn-sm btn-outline-secondary">تعديل</a>
+            <a href="{% url 'offers:offer_details' offer.pk %}" class="btn btn-sm btn-view-sm">عرض</a>
+            <a href="{% url 'offers:edit_offer' offer.pk %}" class="btn btn-sm btn-edit-sm">تعديل</a>
           </td>
         </tr>
         {% empty %}
@@ -51,7 +154,7 @@
   </div>
 
   {% if page_obj.has_other_pages %}
-  <nav aria-label="Offers pagination" class="mt-4">
+  <nav aria-label="Offers pagination" class="mt-2">
     <ul class="pagination mb-0">
       {% if page_obj.has_previous %}
       <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">السابق</a></li>

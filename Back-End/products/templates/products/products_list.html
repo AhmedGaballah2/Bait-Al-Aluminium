@@ -1,27 +1,135 @@
 {% extends 'products/base.html' %} {% block content %}
 
-<div
-  class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded-3 shadow-sm"
->
-  <h2 class="fw-bold m-0">العروض</h2>
+<style>
+  .section-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.1rem 1.4rem;
+    box-shadow: 0 4px 16px rgba(15, 27, 45, 0.05);
+    margin-bottom: 1.5rem;
+  }
 
+  .section-bar h2 {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--navy);
+    margin: 0;
+  }
+
+  .count-pill {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: none;
+  }
+
+  .btn-add {
+    background: var(--blue);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+  }
+
+  .btn-add:hover {
+    background: var(--blue-dark);
+    color: #fff;
+  }
+
+  .product-card {
+    border: 1px solid #eef1f5;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(15, 27, 45, 0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(15, 27, 45, 0.1);
+  }
+
+  .product-card .card-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  .product-card .card-text {
+    font-size: 13px;
+  }
+
+  .price-tag {
+    color: var(--blue-dark);
+    font-weight: 800;
+    font-size: 15px;
+  }
+
+  .old-price {
+    color: #9aa4b2;
+    font-size: 13px;
+  }
+
+  .btn-edit {
+    background: var(--blue);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .btn-edit:hover {
+    background: var(--blue-dark);
+    color: #fff;
+  }
+
+  .btn-delete {
+    background: #fdecec;
+    border: none;
+    color: #b42318;
+    font-weight: 600;
+  }
+
+  .btn-delete:hover {
+    background: #f8d3d3;
+    color: #b42318;
+  }
+
+  .badge-new {
+    background: var(--blue);
+    font-weight: 600;
+  }
+
+  .meta-row {
+    color: #6b7280;
+  }
+</style>
+
+<!-- العروض -->
+<div class="section-bar">
+  <h2>العروض</h2>
   <div class="d-flex align-items-center gap-3">
     {% if offerTotal %}
-    <span class="btn btn-primary pe-none"> العدد: {{ offerTotal }} </span>
+    <span class="count-pill">العدد: {{ offerTotal }}</span>
     {% endif %}
-    <a href="{% url 'products:add_offer' %}" class="btn btn-success">
+    <a href="{% url 'products:add_offer' %}" class="btn btn-add">
       + إضافة عرض جديد
     </a>
   </div>
 </div>
 
-<!-- العروض -->
-
 <div class="row g-4">
   {% for offer in offers %}
   <div class="col-md-4 col-lg-3">
-    <div class="card h-100 shadow-sm border-0">
-      <!-- الصورة -->
+    <div class="card product-card h-100">
       {% if offer.image %}
       <img
         src="{{ offer.image.url }}"
@@ -32,29 +140,25 @@
       {% endif %}
 
       <div class="card-body d-flex flex-column">
-        <!-- العنوان -->
         <a
           href="{% url 'offers:offer_details' offer.pk %}"
           style="text-decoration: none; color: inherit"
           ><h5 class="card-title">{{ offer.title }}</h5></a
         >
 
-        <!-- الوصف -->
-        <p class="card-text text-muted small">
+        <p class="card-text text-muted">
           {{ offer.description|truncatechars:80 }}
         </p>
 
         <div class="mt-auto">
-          <!-- السعر -->
           <div class="mb-2">
-            <span class="fw-bold text-success"> {{ offer.price }} جنيه </span>
+            <span class="price-tag">{{ offer.price }} جنيه</span>
           </div>
 
-          <!-- أزرار التحكم -->
           <div class="d-flex gap-2 mt-2">
             <a
               href="{% url 'products:edit_offer' offer.id %}"
-              class="btn btn-sm btn-primary w-50"
+              class="btn btn-sm btn-edit w-50"
             >
               تعديل
             </a>
@@ -66,8 +170,7 @@
               onsubmit="return confirm('هل أنت متأكد من حذف العرض؟');"
             >
               {% csrf_token %}
-
-              <button type="submit" class="btn btn-danger btn-sm w-100">
+              <button type="submit" class="btn btn-sm btn-delete w-100">
                 حذف
               </button>
             </form>
@@ -79,27 +182,22 @@
   {% endfor %}
 </div>
 
-<div
-  class="d-flex justify-content-between align-items-center mt-4 mb-4 p-3 bg-white rounded-3 shadow-sm"
->
-  <h2 class="fw-bold m-0">الجديد</h2>
-
+<!-- الجديد -->
+<div class="section-bar mt-4">
+  <h2>الجديد</h2>
   <div class="d-flex align-items-center gap-3">
     {% if not newArrivalTotal %}
-    <a href="{% url 'products:add_new_product' %}" class="btn btn-success">
+    <a href="{% url 'products:add_new_product' %}" class="btn btn-add">
       + إضافة منتج جديد
     </a>
     {% endif %}
   </div>
 </div>
 
-<!-- المنتج الجديد -->
-
 <div class="row g-4">
   {% for new_arrival in new_arrivals %}
   <div class="col-md-4 col-lg-3">
-    <div class="card h-100 shadow-sm border-0">
-      <!-- الصورة -->
+    <div class="card product-card h-100">
       {% if new_arrival.image %}
       <img
         src="{{ new_arrival.image.url }}"
@@ -110,7 +208,6 @@
       {% endif %}
 
       <div class="card-body d-flex flex-column">
-        <!-- العنوان -->
         <a
           href="{% url 'products:new_product_details' new_arrival.pk %}"
           style="text-decoration: none; color: inherit"
@@ -118,18 +215,14 @@
         >
 
         <div class="mt-auto">
-          <!-- السعر -->
           <div class="mb-2">
-            <span class="fw-bold text-success">
-              {{ new_arrival.price }} جنيه
-            </span>
+            <span class="price-tag">{{ new_arrival.price }} جنيه</span>
           </div>
 
-          <!-- أزرار التحكم -->
           <div class="d-flex gap-2 mt-2">
             <a
               href="{% url 'products:edit_new_product' new_arrival.id %}"
-              class="btn btn-sm btn-primary w-50"
+              class="btn btn-sm btn-edit w-50"
             >
               تعديل
             </a>
@@ -141,8 +234,7 @@
               onsubmit="return confirm('هل أنت متأكد من حذف المنتج الجديد؟');"
             >
               {% csrf_token %}
-
-              <button type="submit" class="btn btn-danger btn-sm w-100">
+              <button type="submit" class="btn btn-sm btn-delete w-100">
                 حذف
               </button>
             </form>
@@ -154,29 +246,23 @@
   {% endfor %}
 </div>
 
-<div
-  class="d-flex justify-content-between align-items-center mt-4 mb-4 p-3 bg-white rounded-3 shadow-sm"
->
-  <h2 class="fw-bold m-0">المنتجات</h2>
-
+<!-- المنتجات -->
+<div class="section-bar mt-4">
+  <h2>المنتجات</h2>
   <div class="d-flex align-items-center gap-3">
     {% if total %}
-    <span class="btn btn-primary pe-none"> العدد: {{ total }} </span>
+    <span class="count-pill">العدد: {{ total }}</span>
     {% endif %}
-
-    <a href="{% url 'products:add_product' %}" class="btn btn-success">
+    <a href="{% url 'products:add_product' %}" class="btn btn-add">
       + إضافة منتج جديد
     </a>
   </div>
 </div>
 
-<!-- المنتجات -->
-
 <div class="row g-4">
   {% for product in products %}
   <div class="col-md-4 col-lg-3">
-    <div class="card h-100 shadow-sm border-0">
-      <!-- الصورة -->
+    <div class="card product-card h-100">
       <img
         src="{{ product.image.url }}"
         class="card-img-top"
@@ -185,7 +271,6 @@
       />
 
       <div class="card-body d-flex flex-column">
-        <!-- الاسم -->
         <h5 class="card-title">
           <a
             href="{% url 'products:product_details' product.pk %}"
@@ -194,43 +279,35 @@
           >
         </h5>
 
-        <!-- الوصف -->
-        <p class="card-text text-muted small">
+        <p class="card-text text-muted">
           {{ product.description|truncatechars:80 }}
         </p>
 
         <div class="mt-auto">
-          <!-- جديد -->
           {% if product.is_new %}
-          <span class="badge bg-success mb-2">جديد</span>
+          <span class="badge badge-new mb-2">جديد</span>
+          {% endif %} {% if product.discount > 0 %}
+          <span class="badge bg-danger">خصم {{ product.discount }}%</span>
           {% endif %}
 
-          <!-- الخصم -->
-          {% if product.discount > 0 %}
-          <span class="badge bg-danger"> خصم {{ product.discount }}% </span>
-          {% endif %}
-
-          <!-- السعر -->
-          <div class="mb-2">
-            <span class="fw-bold text-success"> {{ product.price }} جنيه </span>
+          <div class="mb-2 mt-2">
+            <span class="price-tag">{{ product.price }} جنيه</span>
             {% if product.old_price %}
-            <span class="text-decoration-line-through text-muted">
+            <span class="old-price text-decoration-line-through">
               {{ product.old_price }} جنيه
             </span>
             {% endif %}
           </div>
 
-          <!-- التصنيف والمخزون -->
-          <div class="d-flex justify-content-between small text-muted mb-3">
+          <div class="d-flex justify-content-between small meta-row mb-3">
             <span>المخزون: {{ product.stock }}</span>
             <span>التصنيف: {{ product.category }}</span>
           </div>
 
-          <!-- أزرار التحكم -->
           <div class="d-flex gap-2 mt-2">
             <a
               href="{% url 'products:edit_product' product.id %}"
-              class="btn btn-sm btn-primary w-50"
+              class="btn btn-sm btn-edit w-50"
             >
               تعديل
             </a>
@@ -242,8 +319,7 @@
               onsubmit="return confirm('هل أنت متأكد من حذف المنتج؟');"
             >
               {% csrf_token %}
-
-              <button type="submit" class="btn btn-danger btn-sm w-100">
+              <button type="submit" class="btn btn-sm btn-delete w-100">
                 حذف
               </button>
             </form>

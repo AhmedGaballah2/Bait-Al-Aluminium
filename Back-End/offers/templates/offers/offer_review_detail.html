@@ -3,199 +3,226 @@
 {% block page_title %}تفاصيل تقييم العرض{% endblock %}
 
 {% block content %}
+<style>
+  .detail-card {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(15, 27, 45, 0.07);
+  }
 
-<div class="container py-5">
+  .detail-header {
+    background: var(--navy);
+    color: #fff;
+    padding: 1.1rem 1.6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-  <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+  .detail-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+  }
 
-    <!-- Header -->
+  .status-chip {
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 6px 14px;
+    border-radius: 999px;
+  }
 
-    <div
-      class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3"
-    >
+  .status-approved {
+    background: #e2f6ea;
+    color: #1c7c40;
+  }
 
-      <h2 class="h4 mb-0">
-        تفاصيل التقييم من {{ review.name }}
-      </h2>
+  .status-pending {
+    background: #fff4d6;
+    color: #92620a;
+  }
 
-      <span
-        class="badge {% if review.approved %}bg-success{% else %}bg-warning{% endif %}"
-      >
+  .detail-list .list-group-item {
+    border-color: #eef1f5;
+    padding: 0.85rem 0;
+    font-size: 15px;
+  }
 
-        {% if review.approved %}
-          منشور
-        {% else %}
-          قيد المراجعة
-        {% endif %}
+  .detail-list strong {
+    color: var(--navy);
+    font-weight: 700;
+  }
 
+  .rating-chip {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 5px 12px;
+  }
+
+  .actions-panel {
+    border: 1.5px solid var(--blue-light);
+    border-radius: 16px;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .actions-panel .panel-header {
+    background: var(--blue);
+    color: #fff;
+    padding: 0.9rem 1.2rem;
+  }
+
+  .actions-panel .panel-header h5 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .actions-panel .panel-body {
+    padding: 1.4rem;
+  }
+
+  .btn-publish {
+    background: #1c7c40;
+    border: none;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .btn-publish:hover {
+    background: #156530;
+    color: #fff;
+  }
+
+  .btn-reject {
+    background: #fff4d6;
+    border: none;
+    color: #92620a;
+    font-weight: 700;
+  }
+
+  .btn-reject:hover {
+    background: #ffe9ad;
+    color: #92620a;
+  }
+
+  .btn-back {
+    background: #fff;
+    border: 1.5px solid #e3e7ed;
+    color: var(--navy);
+    font-weight: 600;
+  }
+
+  .btn-back:hover {
+    background: #f4f6f9;
+  }
+
+  .note-box {
+    background: var(--blue-light);
+    border: none;
+    color: var(--blue-dark);
+    border-radius: 12px;
+    font-size: 13px;
+  }
+</style>
+
+<div class="container py-4">
+  <div class="card detail-card">
+    <div class="detail-header">
+      <h2>تفاصيل التقييم من {{ review.name }}</h2>
+      <span class="status-chip {% if review.approved %}status-approved{% else %}status-pending{% endif %}">
+        {% if review.approved %}منشور{% else %}قيد المراجعة{% endif %}
       </span>
-
     </div>
 
-
-    <!-- Body -->
-
     <div class="card-body p-4">
-
       <div class="row g-4">
-
-        <!-- Review Details -->
-
         <div class="col-md-8">
-
-          <ul class="list-group list-group-flush fs-5">
-
+          <ul class="list-group list-group-flush detail-list">
             <li class="list-group-item">
-
               <strong>العرض:</strong>
-
               {{ review.offer.title }}
-
             </li>
 
-
             <li class="list-group-item">
-
               <strong>اسم المُقيِّم:</strong>
-
               {{ review.name }}
-
             </li>
 
-
             <li class="list-group-item">
-
               <strong>البريد الإلكتروني:</strong>
-
               {{ review.email }}
-
             </li>
 
-
             <li class="list-group-item">
-
               <strong>التقييم:</strong>
-
-              <span class="badge bg-info">
-                {{ review.rating }}/5
-              </span>
-
+              <span class="rating-chip">⭐ {{ review.rating }}/5</span>
             </li>
 
-
             <li class="list-group-item">
-
               <strong>التعليق:</strong>
-
-              <p class="mb-0">
-                {{ review.comment }}
-              </p>
-
+              <p class="mb-0 mt-1">{{ review.comment }}</p>
             </li>
-
 
             <li class="list-group-item">
-
               <strong>تاريخ الإنشاء:</strong>
-
               {{ review.created_at|date:'Y-m-d H:i' }}
-
             </li>
-
           </ul>
-
         </div>
 
-
-        <!-- Admin Actions -->
-
         <div class="col-md-4">
-
-          <div class="card border-primary h-100">
-
-            <div class="card-header bg-primary text-white">
-
-              <h5 class="mb-0">
-                إجراءات الإدارة
-              </h5>
-
+          <div class="actions-panel">
+            <div class="panel-header">
+              <h5>إجراءات الإدارة</h5>
             </div>
-
-
-            <div class="card-body">
-
-              <form
-                method="POST"
-                class="d-flex flex-column gap-2"
-              >
-
-                {% csrf_token %}
-
-
-                {% if not review.approved %}
-
+            <div class="panel-body">
+              <form method="POST" class="d-flex flex-column gap-2">
+                {% csrf_token %} {% if not review.approved %}
                 <button
                   type="submit"
                   name="action"
                   value="publish"
-                  class="btn btn-success w-100"
+                  class="btn btn-publish w-100"
                 >
                   ✓ نشر التقييم
                 </button>
-
                 {% else %}
-
                 <button
                   type="submit"
                   name="action"
                   value="reject"
-                  class="btn btn-warning w-100"
+                  class="btn btn-reject w-100"
                 >
                   ✕ رفض التقييم
                 </button>
-
                 {% endif %}
-
 
                 <a
                   href="{% url 'offers:dashboard_offer_reviews' %}"
-                  class="btn btn-secondary w-100"
+                  class="btn btn-back w-100"
                 >
                   العودة إلى تقييمات العروض
                 </a>
-
               </form>
 
+              <hr style="border-color: #eef1f5" />
 
-              <hr />
-
-
-              <div class="alert alert-info small mb-0">
-
+              <div class="alert note-box small mb-0">
                 <strong>ملاحظة:</strong>
-
                 <br />
-
                 - التقييمات المنشورة ستظهر على موقع المتجر الأمامي
-
                 <br />
-
                 - التقييمات المرفوضة ستكون مخفية عن العملاء
-
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
-
   </div>
-
 </div>
-
 {% endblock %}

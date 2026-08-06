@@ -4,63 +4,169 @@
 {% block page_title %}التصنيفات{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h2 class="h4 mb-1">التصنيفات</h2>
-    <p class="text-muted mb-0">إدارة تصنيفات المنتجات</p>
-  </div>
+<style>
+  .list-toolbar {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.1rem 1.4rem;
+    box-shadow: 0 4px 16px rgba(15, 27, 45, 0.05);
+  }
 
-  <a href="{% url 'dashboard:add_category' %}" class="btn btn-primary">+ إضافة تصنيف</a>
-</div>
+  .list-toolbar h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+  }
 
-<div class="card border-0 shadow-sm">
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div>
-        <strong>{{ categories|length }}</strong> تصنيف
+  .search-box .form-control {
+    border-radius: 10px 0 0 10px;
+    border: 1.5px solid #e3e7ed;
+  }
+
+  .search-box .btn {
+    border-radius: 0 10px 10px 0;
+    background: var(--blue);
+    border: 1.5px solid var(--blue);
+    color: #fff;
+  }
+
+  .search-box .btn:hover {
+    background: var(--blue-dark);
+  }
+
+  .count-pill {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 999px;
+  }
+
+  .btn-add {
+    background: var(--blue);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 10px;
+  }
+
+  .btn-add:hover {
+    background: var(--blue-dark);
+    color: #fff;
+  }
+
+  .badge-count {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    font-weight: 600;
+    border-radius: 999px;
+  }
+
+  .btn-edit-sm {
+    background: transparent;
+    border: 1.5px solid var(--blue);
+    color: var(--blue);
+    font-weight: 600;
+    font-size: 12.5px;
+    border-radius: 8px;
+  }
+
+  .btn-edit-sm:hover {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .btn-delete-sm {
+    background: transparent;
+    border: 1.5px solid #f3d4d4;
+    color: #b42318;
+    font-weight: 600;
+    font-size: 12.5px;
+    border-radius: 8px;
+  }
+
+  .btn-delete-sm:hover {
+    background: #fdecec;
+    color: #b42318;
+  }
+
+  .list-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(15, 27, 45, 0.05);
+      }
+
+      .list-table th,
+      .list-table td {
+        padding: 0.95rem 1rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+        font-size: 14px;
+      }
+
+      .list-table th {
+        background: #f8fafc;
+        text-align: right;
+        font-weight: 700;
+        color: var(--navy);
+        font-size: 13px;
+      }
+</style>
+
+<div class="d-flex flex-column gap-3">
+  <div class="list-toolbar d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+      <h2 class="mb-1">التصنيفات</h2>
+      <p class="text-muted mb-0">إدارة فئات المنتجات.</p>
+    </div>
+    <form method="GET" class="search-box">
+      <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="بحث عن فئة..." value="{{ search_query }}" />
+        <button class="btn" type="submit">بحث</button>
       </div>
-
-      <form method="GET" class="search-box">
-        <div class="input-group">
-          <input type="text" name="search" class="form-control" placeholder="بحث عن تصنيف..." value="{{ search_query }}" />
-          <button class="btn btn-outline-secondary" type="submit">بحث</button>
-        </div>
-      </form>
-    </div>
-
-    {% if categories %}
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th>#</th>
-            <th>اسم التصنيف</th>
-            <th>عدد المنتجات</th>
-            <th class="text-end">الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for category in categories %}
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td><strong>{{ category.name }}</strong></td>
-            <td><span class="badge bg-secondary">{{ category.products.count }}</span></td>
-            <td class="text-end">
-              <a href="{% url 'dashboard:edit_category' category.pk %}" class="btn btn-sm btn-outline-primary">تعديل</a>
-              <a href="{% url 'dashboard:delete_category' category.pk %}" class="btn btn-sm btn-outline-danger">حذف</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="text-center py-5">
-      <h5>لا توجد تصنيفات</h5>
-      <p class="text-muted">ابدأ بإضافة أول تصنيف للمنتجات.</p>
-      <a href="{% url 'dashboard:add_category' %}" class="btn btn-primary">إضافة تصنيف</a>
-    </div>
-    {% endif %}
+    </form>
   </div>
+
+  <div class="d-flex justify-content-between align-items-center">
+    <span class="count-pill">عدد الفئات: {{ categories|length }}</span>
+    <a href="{% url 'dashboard:add_category' %}" class="btn btn-add">إضافة فئة</a>
+  </div>
+
+  {% if categories %}
+  <div class="table-responsive rounded-4 overflow-hidden bg-white" style="box-shadow: 0 4px 16px rgba(15,27,45,0.05);">
+    <table class="list-table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>اسم الفئة</th>
+          <th>عدد المنتجات</th>
+          <th class="text-end">الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+        <tr>
+          <td class="text-muted">{{ forloop.counter }}</td>
+          <td><strong style="color: var(--navy)">{{ category.name }}</strong></td>
+          <td><span class="badge badge-count">{{ category.products.count }}</span></td>
+          <td class="text-end">
+            <a href="{% url 'dashboard:edit_category' category.pk %}" class="btn btn-sm btn-edit-sm">تعديل</a>
+            <a href="{% url 'dashboard:delete_category' category.pk %}" class="btn btn-sm btn-delete-sm">حذف</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-5 bg-white rounded-4" style="box-shadow: 0 4px 16px rgba(15,27,45,0.05);">
+    <h5 style="color: var(--navy)">لا توجد تصنيفات</h5>
+    <p class="text-muted">ابدأ بإضافة أول تصنيف للمنتجات.</p>
+    <a href="{% url 'dashboard:add_category' %}" class="btn btn-add">إضافة تصنيف</a>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

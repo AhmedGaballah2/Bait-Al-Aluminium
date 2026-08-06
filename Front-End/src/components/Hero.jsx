@@ -105,9 +105,9 @@ function Hero() {
               </div>
               <div className="col-lg-12 col-md-6 col-12">
                 <div className="hero-small-banner style2">
-                  <div className="content">
-                    <h2>! خصومات أسبوعية</h2>
-                    <p>تفاصيل الخصم</p>
+                  <div className="content" dir="rtl">
+                    <h2>شحن مجاني! </h2>
+                    <p>على الطلبات فوق 2500 جنيه</p>
                     <div className="button">
                       <a className="btn" href="/all-products">
                         تسوق الآن
