@@ -4,6 +4,10 @@ from django.contrib.auth.decorators import login_required
 
 
 def login_view(request):
+    # لو المستخدم مسجل دخول بالفعل امنعه من فتح صفحة اللوجين
+    if request.user.is_authenticated:
+        return redirect('dashboard:dashboard')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')

@@ -4,376 +4,321 @@
 {% block page_title %}لوحة التحكم{% endblock %}
 
 {% block content %}
+<style>
+  .welcome-block h2 {
+    color: var(--navy);
+    font-weight: 800;
+    font-size: 22px;
+  }
+
+  .stat-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.4rem;
+    box-shadow: 0 4px 16px rgba(15, 27, 45, 0.05);
+    height: 100%;
+    transition: transform 0.15s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .stat-card .label {
+    color: #9aa4b2;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .stat-card .value {
+    color: var(--navy);
+    font-weight: 800;
+    font-size: 24px;
+  }
+
+  .stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--blue-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .panel {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(15, 27, 45, 0.05);
+  }
+
+  .panel h5 {
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 15.5px;
+  }
+
+  .status-tile {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .status-tile .label {
+    color: #9aa4b2;
+    font-size: 12.5px;
+    margin-bottom: 4px;
+  }
+
+  .status-tile .value {
+    color: var(--navy);
+    font-weight: 800;
+    font-size: 20px;
+  }
+
+  .panel table th {
+    color: #9aa4b2;
+    font-weight: 600;
+    font-size: 12.5px;
+    border-bottom: 1px solid #eef1f5;
+  }
+
+  .panel table td {
+    border-bottom: 1px solid #f2f4f7;
+    font-size: 14px;
+    color: var(--navy);
+  }
+
+  .btn-link-soft {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    border: none;
+    font-weight: 600;
+    font-size: 12.5px;
+    border-radius: 8px;
+  }
+
+  .btn-link-soft:hover {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .badge-status {
+    font-weight: 600;
+    font-size: 11.5px;
+    padding: 5px 10px;
+    border-radius: 999px;
+  }
+
+  .badge-pending { background: #fff4d6; color: #92620a; }
+  .badge-confirmed { background: var(--blue-light); color: var(--blue-dark); }
+  .badge-transit { background: #e6e9fb; color: #3d3fa1; }
+  .badge-delivered { background: #e2f6ea; color: #1c7c40; }
+  .badge-stock-out { background: #fdecec; color: #b42318; }
+  .badge-stock-low { background: #fff4d6; color: #92620a; }
+</style>
+
 <div class="container-fluid">
-  <div class="mb-4">
-    <h2 class="fw-bold mb-1">مرحبًا بك 👋</h2>
+  <div class="welcome-block mb-4">
+    <h2 class="mb-1">مرحبًا بك 👋</h2>
     <p class="text-muted mb-0">إليك نظرة سريعة على حالة المتجر اليوم.</p>
   </div>
 
   <div class="row g-4 mb-4">
     <div class="col-xl-3 col-md-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <p class="text-muted mb-2">إجمالي المنتجات</p>
-              <h3 class="fw-bold mb-0">{{ total_products }}</h3>
-            </div>
-            <div class="fs-3">📦</div>
+      <div class="stat-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <p class="label mb-0">إجمالي المنتجات</p>
+            <h3 class="value mb-0">{{ total_products }}</h3>
           </div>
+          <div class="stat-icon">📦</div>
         </div>
       </div>
     </div>
 
     <div class="col-xl-3 col-md-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <p class="text-muted mb-2">التصنيفات</p>
-              <h3 class="fw-bold mb-0">{{ total_categories }}</h3>
-            </div>
-            <div class="fs-3">🏷️</div>
+      <div class="stat-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <p class="label mb-0">التصنيفات</p>
+            <h3 class="value mb-0">{{ total_categories }}</h3>
           </div>
+          <div class="stat-icon">🏷️</div>
         </div>
       </div>
     </div>
 
     <div class="col-xl-3 col-md-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <p class="text-muted mb-2">إجمالي الطلبات</p>
-              <h3 class="fw-bold mb-0">{{ total_orders }}</h3>
-            </div>
-            <div class="fs-3">🛒</div>
+      <div class="stat-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <p class="label mb-0">إجمالي الطلبات</p>
+            <h3 class="value mb-0">{{ total_orders }}</h3>
           </div>
+          <div class="stat-icon">🛒</div>
         </div>
       </div>
     </div>
 
     <div class="col-xl-3 col-md-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <p class="text-muted mb-2">إجمالي المبيعات</p>
-              <h3 class="fw-bold mb-0">{{ total_sales }} ج.م</h3>
-            </div>
-            <div class="fs-3">💰</div>
+      <div class="stat-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <p class="label mb-0">إجمالي المبيعات</p>
+            <h3 class="value mb-0">{{ total_sales }} ج.م</h3>
           </div>
+          <div class="stat-icon">💰</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-      <h5 class="fw-bold mb-4">حالة الطلبات</h5>
-      <div class="row g-4">
-        <div class="col-md-3"><div class="p-3 bg-light rounded"><div class="text-muted mb-1">قيد الانتظار</div><h4 class="fw-bold mb-0">{{ pending_orders }}</h4></div></div>
-        <div class="col-md-3"><div class="p-3 bg-light rounded"><div class="text-muted mb-1">تم التأكيد</div><h4 class="fw-bold mb-0">{{ confirmed_orders }}</h4></div></div>
-        <div class="col-md-3"><div class="p-3 bg-light rounded"><div class="text-muted mb-1">في الطريق</div><h4 class="fw-bold mb-0">{{ in_transit_orders }}</h4></div></div>
-        <div class="col-md-3"><div class="p-3 bg-light rounded"><div class="text-muted mb-1">تم التسليم</div><h4 class="fw-bold mb-0">{{ delivered_orders }}</h4></div></div>
+  <div class="panel mb-4">
+    <h5 class="mb-4">حالة الطلبات</h5>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="status-tile">
+          <div class="label">قيد الانتظار</div>
+          <div class="value">{{ pending_orders }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="status-tile">
+          <div class="label">تم التأكيد</div>
+          <div class="value">{{ confirmed_orders }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="status-tile">
+          <div class="label">في الطريق</div>
+          <div class="value">{{ in_transit_orders }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="status-tile">
+          <div class="label">تم التسليم</div>
+          <div class="value">{{ delivered_orders }}</div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Low Stock + Top Products -->
   <div class="row g-4 mb-4">
-
-    <!-- Low Stock -->
     <div class="col-lg-6">
-
-      <div class="card border-0 shadow-sm h-100">
-
-        <div class="card-body">
-
-          <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <h5 class="fw-bold mb-0">
-              ⚠️ مخزون منخفض
-            </h5>
-
-            <a
-              href="{% url 'dashboard:dashboard_products' %}"
-              class="btn btn-sm btn-outline-primary"
-            >
-              كل المنتجات
-            </a>
-
-          </div>
-
-
-          {% if low_stock_products %}
-
-            <div class="table-responsive">
-
-              <table class="table align-middle mb-0">
-
-                <thead>
-                  <tr>
-                    <th>المنتج</th>
-                    <th>التصنيف</th>
-                    <th>المخزون</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  {% for product in low_stock_products %}
-
-                    <tr>
-
-                      <td class="fw-semibold">
-                        {{ product.name }}
-                      </td>
-
-                      <td>
-                        {{ product.category|default:"بدون تصنيف" }}
-                      </td>
-
-                      <td>
-
-                        {% if product.stock == 0 %}
-
-                          <span class="badge bg-danger">
-                            نفد
-                          </span>
-
-                        {% else %}
-
-                          <span class="badge bg-warning text-dark">
-                            {{ product.stock }}
-                          </span>
-
-                        {% endif %}
-
-                      </td>
-
-                    </tr>
-
-                  {% endfor %}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          {% else %}
-
-            <div class="text-center text-muted py-4">
-              لا توجد منتجات منخفضة المخزون 🎉
-            </div>
-
-          {% endif %}
-
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="mb-0">⚠️ مخزون منخفض</h5>
+          <a href="{% url 'dashboard:dashboard_products' %}" class="btn btn-sm btn-link-soft">كل المنتجات</a>
         </div>
 
-      </div>
-
-    </div>
-
-
-    <!-- Top Products -->
-    <div class="col-lg-6">
-
-      <div class="card border-0 shadow-sm h-100">
-
-        <div class="card-body">
-
-          <h5 class="fw-bold mb-4">
-            🔥 الأكثر مبيعًا
-          </h5>
-
-
-          {% if top_products %}
-
-            <div class="table-responsive">
-
-              <table class="table align-middle mb-0">
-
-                <thead>
-                  <tr>
-                    <th>المنتج</th>
-                    <th>الكمية المباعة</th>
-                    <th>المبيعات</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  {% for product in top_products %}
-
-                    <tr>
-
-                      <td class="fw-semibold">
-                        {{ product.product_name }}
-                      </td>
-
-                      <td>
-                        {{ product.total_quantity }}
-                      </td>
-
-                      <td>
-                        {{ product.total_sales }} ج.م
-                      </td>
-
-                    </tr>
-
-                  {% endfor %}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          {% else %}
-
-            <div class="text-center text-muted py-4">
-              لا توجد مبيعات حتى الآن.
-            </div>
-
-          {% endif %}
-
+        {% if low_stock_products %}
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr><th>المنتج</th><th>التصنيف</th><th>المخزون</th></tr>
+            </thead>
+            <tbody>
+              {% for product in low_stock_products %}
+              <tr>
+                <td class="fw-semibold">{{ product.name }}</td>
+                <td>{{ product.category|default:"بدون تصنيف" }}</td>
+                <td>
+                  {% if product.stock == 0 %}
+                  <span class="badge-status badge-stock-out">نفد</span>
+                  {% else %}
+                  <span class="badge-status badge-stock-low">{{ product.stock }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-
+        {% else %}
+        <div class="text-center text-muted py-4">لا توجد منتجات منخفضة المخزون 🎉</div>
+        {% endif %}
       </div>
-
     </div>
 
+    <div class="col-lg-6">
+      <div class="panel h-100">
+        <h5 class="mb-4">🔥 الأكثر مبيعًا</h5>
+        {% if top_products %}
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr><th>المنتج</th><th>الكمية المباعة</th><th>المبيعات</th></tr>
+            </thead>
+            <tbody>
+              {% for product in top_products %}
+              <tr>
+                <td class="fw-semibold">{{ product.product_name }}</td>
+                <td>{{ product.total_quantity }}</td>
+                <td>{{ product.total_sales }} ج.م</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">لا توجد مبيعات حتى الآن.</div>
+        {% endif %}
+      </div>
+    </div>
   </div>
-
 
   <!-- Recent Orders -->
-  <div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-body">
-
-      <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <h5 class="fw-bold mb-0">
-          🛒 آخر الطلبات
-        </h5>
-
-        <a
-          href="{% url 'orders:dashboard_orders' %}"
-          class="btn btn-sm btn-outline-primary"
-        >
-          عرض كل الطلبات
-        </a>
-
-      </div>
-
-
-      <div class="table-responsive">
-
-        <table class="table align-middle mb-0">
-
-          <thead>
-
-            <tr>
-              <th>#</th>
-              <th>العميل</th>
-              <th>الهاتف</th>
-              <th>عدد المنتجات</th>
-              <th>الإجمالي</th>
-              <th>الحالة</th>
-              <th>التاريخ</th>
-            </tr>
-
-          </thead>
-
-
-          <tbody>
-
-            {% for order in recent_orders %}
-
-              <tr>
-
-                <td class="fw-semibold">
-                  #{{ order.id }}
-                </td>
-
-                <td>
-                  {{ order.first_name }} {{ order.last_name }}
-                </td>
-
-                <td>
-                  {{ order.phone }}
-                </td>
-
-                <td>
-                  {{ order.products_count }}
-                </td>
-
-                <td class="fw-semibold">
-                  {{ order.total_price }} ج.م
-                </td>
-
-                <td>
-
-                  {% if order.status == 'pending' %}
-
-                    <span class="badge bg-warning text-dark">
-                      لم يتم التأكيد
-                    </span>
-
-                  {% elif order.status == 'confirmed' %}
-
-                    <span class="badge bg-primary">
-                      تم التأكيد
-                    </span>
-
-                  {% elif order.status == 'in_transit' %}
-
-                    <span class="badge bg-info text-dark">
-                      في الطريق
-                    </span>
-
-                  {% elif order.status == 'delivered' %}
-
-                    <span class="badge bg-success">
-                      تم التسليم
-                    </span>
-
-                  {% endif %}
-
-                </td>
-
-                <td>
-                  {{ order.created_at|date:"Y-m-d H:i" }}
-                </td>
-
-              </tr>
-
-            {% empty %}
-
-              <tr>
-
-                <td
-                  colspan="7"
-                  class="text-center text-muted py-5"
-                >
-                  لا توجد طلبات حتى الآن.
-                </td>
-
-              </tr>
-
-            {% endfor %}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
+  <div class="panel mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="mb-0">🛒 آخر الطلبات</h5>
+      <a href="{% url 'orders:dashboard_orders' %}" class="btn btn-sm btn-link-soft">عرض كل الطلبات</a>
     </div>
 
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>العميل</th>
+            <th>الهاتف</th>
+            <th>عدد المنتجات</th>
+            <th>الإجمالي</th>
+            <th>الحالة</th>
+            <th>التاريخ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recent_orders %}
+          <tr>
+            <td class="fw-semibold">#{{ order.id }}</td>
+            <td>{{ order.first_name }} {{ order.last_name }}</td>
+            <td>{{ order.phone }}</td>
+            <td>{{ order.products_count }}</td>
+            <td class="fw-semibold">{{ order.total_price }} ج.م</td>
+            <td>
+              {% if order.status == 'pending' %}
+              <span class="badge-status badge-pending">لم يتم التأكيد</span>
+              {% elif order.status == 'confirmed' %}
+              <span class="badge-status badge-confirmed">تم التأكيد</span>
+              {% elif order.status == 'in_transit' %}
+              <span class="badge-status badge-transit">في الطريق</span>
+              {% elif order.status == 'delivered' %}
+              <span class="badge-status badge-delivered">تم التسليم</span>
+              {% endif %}
+            </td>
+            <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center text-muted py-5">لا توجد طلبات حتى الآن.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-
 </div>
 {% endblock %}
