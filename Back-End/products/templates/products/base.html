@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="ar" dir="rtl">
   <head>
@@ -6,7 +7,7 @@
 
     <link
       rel="icon"
-      type="/favicon.svg"
+      type="image/png"
       href="{% static 'logo/logo-vertical.png' %}"
     />
     <link
@@ -35,44 +36,44 @@
         </div>
 
         <nav class="sidebar-nav px-3 py-3">
-          <a
+          
             class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}"
             href="{% url 'dashboard:dashboard' %}"
           >
             <span class="link-dot"></span>الرئيسية
           </a>
-          <a
+          
             class="sidebar-link {% if active_page == 'products' %}active{% endif %}"
             href="{% url 'dashboard:dashboard_products' %}"
           >
             <span class="link-dot"></span>المنتجات
           </a>
 
-          <a
+          
             class="sidebar-link {% if active_page == 'offers' %}active{% endif %}"
             href="{% url 'offers:dashboard_offers' %}"
           >
             <span class="link-dot"></span>العروض
           </a>
-          <a
+          
             class="sidebar-link {% if active_page == 'categories' %}active{% endif %}"
             href="{% url 'dashboard:dashboard_categories' %}"
           >
             <span class="link-dot"></span>الفئات
           </a>
-          <a
+          
             class="sidebar-link {% if active_page == 'reviews' %}active{% endif %}"
             href="{% url 'dashboard:dashboard_reviews' %}"
           >
             <span class="link-dot"></span>التقييمات
           </a>
-          <a
+          
             class="sidebar-link {% if active_page == 'offer_reviews' %}active{% endif %}"
             href="{% url 'offers:dashboard_offer_reviews' %}"
           >
             <span class="link-dot"></span>تقييمات العروض
           </a>
-          <a
+          
             class="sidebar-link {% if active_page == 'orders' %}active{% endif %}"
             href="{% url 'orders:dashboard_orders' %}"
           >
@@ -98,7 +99,7 @@
                 <div class="small text-muted">مسجل باسم</div>
                 <div class="fw-semibold">{{ user.username }}</div>
               </div>
-              <a
+              
                 href="{% url 'accounts:logout' %}"
                 class="btn btn-sm btn-logout"
                 >تسجيل خروج</a
