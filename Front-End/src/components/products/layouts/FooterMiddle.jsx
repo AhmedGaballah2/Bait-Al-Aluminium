@@ -1,14 +1,13 @@
 import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 
+import api from "../../../services/api";
+
 function FooterMiddle() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/categories/")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch((err) => console.log(err));
+    api.get("/categories/").then((res) => setCategories(res.data));
   }, []);
 
   return (

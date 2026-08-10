@@ -13,6 +13,8 @@ import logo from "../../../assets/Logos/Logo TopBar1.png";
 import { useCart } from "./CartContext";
 import NavbarSearchForm from "./NavbarSearchForm";
 
+import { getMediaUrl } from "../../../services/api";
+
 function NavBarMiddle() {
   const { cartItems, removeFromCart } = useCart();
 
@@ -61,20 +63,19 @@ function NavBarMiddle() {
                     </NavLink>
                   </div>
                   <div className="cart-items">
-                    <a
-                      href="javascript:void(0)"
+                    <NavLink
+                      to="/cart"
                       className="main-btn d-flex justify-content-center align-items-center"
                     >
-                      <NavLink to={"/cart"}>
-                        <i className="lni lni-cart">
-                          <FontAwesomeIcon
-                            icon={faCartShopping}
-                            style={{ color: "#081828" }}
-                          />
-                        </i>
-                      </NavLink>
+                      <i className="lni lni-cart">
+                        <FontAwesomeIcon
+                          icon={faCartShopping}
+                          style={{ color: "#081828" }}
+                        />
+                      </i>
+
                       <span className="total-items">{cartItems.length}</span>
-                    </a>
+                    </NavLink>
                     <div className="shopping-item">
                       <div className="dropdown-cart-header">
                         <span>عدد العناصر: {cartItems.length}</span>
@@ -101,10 +102,7 @@ function NavBarMiddle() {
                               </button>
 
                               <div className="cart-img-head">
-                                <img
-                                  src={`http://127.0.0.1:8000${item.image}`}
-                                  alt=""
-                                />
+                                <img src={getMediaUrl(item.image)} alt="" />
                               </div>
 
                               <div className="content">

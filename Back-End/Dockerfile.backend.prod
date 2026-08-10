@@ -1,0 +1,26 @@
+# ده المفروض يتحط في Back-End/Dockerfile.prod
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# مكتبات النظام اللازمة لـ psycopg2 وحاجات تانية شائعة
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# نسخ requirements الأول عشان الـ Docker layer caching يبقى فعّال
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# نسخ الكود كله جوه الـ image (مش mounted من بره زي الـ dev)
+COPY . .
+
+# مستخدم غير root عشان الأمان
+RUN useradd -m appuser && chown -R appuser:appuser /app
+USER appuser
+
+EXPOSE 8000
+
+# الـ command الفعلي بيتحط في docker-compose (migrate + collectstatic + gunicorn)

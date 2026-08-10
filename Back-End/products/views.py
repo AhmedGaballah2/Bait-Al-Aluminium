@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Q, Sum, F, ExpressionWrapper, DecimalField
 from django.views.decorators.csrf import csrf_exempt
@@ -26,7 +26,7 @@ from .serializers import (
 
 # Create your views here.
 
-@login_required
+@staff_member_required
 def products_list(request):
     search_query = request.GET.get('search', '').strip()
     products = Product.objects.all()
@@ -72,7 +72,7 @@ def _dashboard_context(request, active_page, queryset, search_fields=None):
         'result_count': queryset.count(),
     }
 
-@login_required
+@staff_member_required
 def dashboard(request):
     # إحصائيات أساسية
     total_products = Product.objects.count()
@@ -154,7 +154,7 @@ def dashboard(request):
     )
 
 
-@login_required
+@staff_member_required
 def dashboard_products(request):
     products = Product.objects.select_related('category').order_by('-added_at')
     context = _dashboard_context(
@@ -166,7 +166,7 @@ def dashboard_products(request):
     return render(request, 'products/dashboard/products_list.html', context)
 
 
-@login_required
+@staff_member_required
 def dashboard_reviews(request):
     reviews = Review.objects.select_related('product').order_by('-created_at')
     context = _dashboard_context(
@@ -178,7 +178,7 @@ def dashboard_reviews(request):
     return render(request, 'products/dashboard/reviews_list.html', context)
 
 
-@login_required
+@staff_member_required
 def dashboard_categories(request):
     categories = Category.objects.all().order_by('name')
 
@@ -200,7 +200,7 @@ def dashboard_categories(request):
     )
 
 
-@login_required
+@staff_member_required
 def add_category(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
@@ -240,7 +240,7 @@ def add_category(request):
     )
 
 
-@login_required
+@staff_member_required
 def edit_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
 
@@ -288,7 +288,7 @@ def edit_category(request, pk):
     )
 
 
-@login_required
+@staff_member_required
 def delete_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
 
@@ -305,7 +305,7 @@ def delete_category(request, pk):
         }
     )
 
-@login_required
+@staff_member_required
 def product_details(request, pk):
     product = get_object_or_404(Product, pk=pk)
     approved_reviews = product.reviews.filter(approved=True).order_by('-created_at')
@@ -317,7 +317,7 @@ def product_details(request, pk):
 
     return render(request, 'products/product_details.html', context)
 
-@login_required
+@staff_member_required
 def add_product(request):
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
@@ -330,7 +330,7 @@ def add_product(request):
 
     return render(request, 'products/add_product.html', {'form': form})
 
-@login_required
+@staff_member_required
 def delete_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
@@ -338,7 +338,7 @@ def delete_product(request, pk):
         return redirect("dashboard:dashboard_products")
     return render(request, 'products/confirm_delete.html', {'product': product})
 
-@login_required
+@staff_member_required
 def edit_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
@@ -356,7 +356,7 @@ def edit_product(request, pk):
         'product': product
     })
 
-@login_required
+@staff_member_required
 def review_detail(request, pk):
     review = get_object_or_404(Review, pk=pk)
 
@@ -400,6 +400,7 @@ class CategoryListAPIView(APIView):
         return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def product_detail(request, pk):
     try:
         product = Product.objects.get(pk=pk)
@@ -410,6 +411,8 @@ def product_detail(request, pk):
     return Response(serializer.data)
 
 class ReviewAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, product_id):
         reviews = Review.objects.filter(product_id=product_id, approved=True)
         serializer = ReviewSerializer(reviews, many=True)
@@ -437,6 +440,7 @@ class ReviewAPIView(APIView):
         return Response(serializer.errors, status=400)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def related_products(request, pk):
     try:
         product = Product.objects.get(id=pk)
@@ -449,5 +453,3 @@ def related_products(request, pk):
 
     serializer = ProductSerializer(related, many=True)
     return Response(serializer.data)
-
-

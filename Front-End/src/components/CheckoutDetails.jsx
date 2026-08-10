@@ -12,6 +12,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { useState } from "react";
 
 import { governorates } from "../components/products/data/governorates";
+import api from "../services/api";
 
 function CheckoutDetails() {
   const [activeKey, setActiveKey] = useState("0");
@@ -172,32 +173,19 @@ function CheckoutDetails() {
         })),
       };
 
-      const response = await fetch("http://localhost:8000/api/orders/create/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await api.post("/orders/create/", orderData);
+
+      const result = response.data;
+
+      clearCart();
+
+      navigate("/checkout/success", {
+        replace: true,
+        state: {
+          fromCheckout: true,
+          trackingNumber: result.tracking_number,
         },
-        body: JSON.stringify(orderData),
       });
-
-      if (response.ok) {
-        const result = await response.json();
-
-        console.log("Order created successfully:", result);
-
-        clearCart();
-
-        navigate("/checkout/success", {
-          replace: true,
-          state: {
-            fromCheckout: true,
-            trackingNumber: result.tracking_number,
-          },
-        });
-      } else {
-        setSubmitError("فشل إنشاء الطلب. حاول مرة أخرى.");
-        console.error("Error response:", response.status);
-      }
     } catch (error) {
       setSubmitError("حدث خطأ في الاتصال بالسيرفر. حاول مرة أخرى.");
       console.error("Error submitting order:", error);

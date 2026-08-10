@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -33,7 +33,7 @@ def _paginate_queryset(request, queryset, per_page=15):
     return paginator.get_page(page_number)
 
 
-@login_required
+@staff_member_required
 def dashboard_offers(request):
     offers = Offer.objects.order_by('-created_at')
     search_query = request.GET.get('search', '').strip()
@@ -49,7 +49,7 @@ def dashboard_offers(request):
     return render(request, 'offers/dashboard/offers_list.html', context)
 
 
-@login_required
+@staff_member_required
 def dashboard_offer_reviews(request):
     reviews = OfferReview.objects.select_related('offer').order_by('-created_at')
     search_query = request.GET.get('search', '').strip()
@@ -65,7 +65,7 @@ def dashboard_offer_reviews(request):
     return render(request, 'offers/dashboard/offer_reviews_list.html', context)
 
 
-@login_required
+@staff_member_required
 def add_offer(request):
     if request.method == 'POST':
         form = OfferForm(request.POST, request.FILES)
@@ -78,7 +78,7 @@ def add_offer(request):
     return render(request, 'offers/add_offer.html', {'form': form})
 
 
-@login_required
+@staff_member_required
 def edit_offer(request, pk):
     offer = get_object_or_404(Offer, pk=pk)
     if request.method == 'POST':
@@ -92,7 +92,7 @@ def edit_offer(request, pk):
     return render(request, 'offers/edit_offer.html', {'form': form})
 
 
-@login_required
+@staff_member_required
 def delete_offer(request, pk):
     offer = get_object_or_404(Offer, pk=pk)
     if request.method == 'POST':
@@ -101,7 +101,7 @@ def delete_offer(request, pk):
     return redirect('offers:dashboard_offers')
 
 
-@login_required
+@staff_member_required
 def offer_details(request, pk):
     offer = get_object_or_404(Offer, pk=pk)
     approved_reviews = offer.reviews.filter(approved=True).order_by('-created_at')
@@ -155,7 +155,7 @@ class OfferReviewAPIView(APIView):
         return Response(serializer.errors, status=400)
 
 
-@login_required
+@staff_member_required
 def offer_review_detail(request, pk):
     review = get_object_or_404(OfferReview.objects.select_related('offer'), pk=pk)
     if request.method == 'POST':

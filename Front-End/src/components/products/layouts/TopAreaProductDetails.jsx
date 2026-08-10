@@ -15,13 +15,15 @@ import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 
 import { NavLink, useParams } from "react-router";
 
-import axios from "axios";
-
 import { useEffect, useState } from "react";
 
 import { useCart } from "./CartContext";
 
 import { useWishlist } from "./WishlistContext";
+
+import api from "../../../services/api";
+
+import { getMediaUrl } from "../../../services/api";
 
 function TopArea() {
   const [added, setAdded] = useState(false);
@@ -60,15 +62,10 @@ function TopArea() {
   const [mainImage, setMainImage] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/products/${id}`)
-      .then((response) => {
-        setProduct(response.data);
-        setMainImage(response.data.image);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    api.get(`/products/${id}`).then((response) => {
+      setProduct(response.data);
+      setMainImage(response.data.image);
+    });
   }, [id]);
 
   const [quantity, setQuantity] = useState(1);
@@ -84,10 +81,7 @@ function TopArea() {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/products/${id}/reviews/`)
-      .then((res) => setReviews(res.data))
-      .catch((err) => console.log(err));
+    api.get(`/products/${id}/reviews/`).then((res) => setReviews(res.data));
   }, [id]);
 
   const averageRating =
@@ -135,9 +129,7 @@ function TopArea() {
             <div className="product-images">
               <main id="gallery">
                 <div className="main-img">
-                  {mainImage && (
-                    <img src={`http://127.0.0.1:8000${mainImage}`} alt="" />
-                  )}
+                  {mainImage && <img src={getMediaUrl(mainImage)} alt="" />}
                 </div>
                 <div className="images">
                   {product &&
@@ -152,7 +144,7 @@ function TopArea() {
                       .map((image, index) => (
                         <img
                           key={index}
-                          src={`http://127.0.0.1:8000${image}`}
+                          src={getMediaUrl(image)}
                           alt={`product-${index + 1}`}
                           onClick={() => setMainImage(image)}
                           className={mainImage === image ? "active" : ""}

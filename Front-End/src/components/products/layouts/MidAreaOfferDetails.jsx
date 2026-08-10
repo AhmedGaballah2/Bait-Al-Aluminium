@@ -1,12 +1,13 @@
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Turnstile } from "@marsidev/react-turnstile";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faMarker, faClose } from "@fortawesome/free-solid-svg-icons";
 
 import AnonymousUser from "../../../assets/product-details/anonymous-user.webp";
+
+import api from "../../../services/api";
 
 function MidAreaOfferDetails() {
   const { id } = useParams();
@@ -23,21 +24,13 @@ function MidAreaOfferDetails() {
   });
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/offers/${id}`)
-      .then((response) => {
-        setOffer(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    api.get(`/offers/${id}`).then((response) => {
+      setOffer(response.data);
+    });
   }, [id]);
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/offers/${id}/reviews/`)
-      .then((res) => setReviews(res.data))
-      .catch((err) => console.log(err));
+    api.get(`/offers/${id}/reviews/`).then((res) => setReviews(res.data));
   }, [id]);
 
   const submitReview = (e) => {
@@ -50,8 +43,8 @@ function MidAreaOfferDetails() {
       return;
     }
 
-    axios
-      .post(`http://127.0.0.1:8000/api/offers/${id}/reviews/`, {
+    api
+      .post(`/offers/${id}/reviews/`, {
         ...formData,
         turnstile_token: turnstileToken,
       })
@@ -71,7 +64,6 @@ function MidAreaOfferDetails() {
         } else {
           setReviewError("حدث خطأ أثناء إرسال المراجعة. حاول مرة أخرى.");
         }
-        console.log(err);
       });
   };
 

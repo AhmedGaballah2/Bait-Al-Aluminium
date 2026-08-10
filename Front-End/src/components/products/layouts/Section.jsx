@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -9,20 +8,15 @@ import "swiper/css/navigation";
 
 import ProductCard from "./ProductCard";
 
+import api from "../../../services/api";
+
 function Section({ category, banner }) {
   const [products, setProduct] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/api/products/")
-      .then((response) => {
-        setProduct(response.data);
-
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    api.get("/products/").then((response) => {
+      setProduct(response.data);
+    });
   }, []);
 
   return (
@@ -35,7 +29,6 @@ function Section({ category, banner }) {
         modules={[Navigation]}
         navigation
         dir="rtl"
-        rtl={true}
         spaceBetween={20}
         breakpoints={{
           0: {
