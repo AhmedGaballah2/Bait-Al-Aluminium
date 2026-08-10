@@ -1,6 +1,5 @@
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Turnstile } from "@marsidev/react-turnstile";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,6 +7,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faMarker, faClose } from "@fortawesome/free-solid-svg-icons";
 
 import AnonymousUser from "../../../assets/product-details/anonymous-user.webp";
+
+import api from "../../../services/api";
 
 function MidArea() {
   const { id } = useParams();
@@ -17,10 +18,7 @@ function MidArea() {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/products/${id}/reviews/`)
-      .then((res) => setReviews(res.data))
-      .catch((err) => console.log(err));
+    api.get(`/products/${id}/reviews/`).then((res) => setReviews(res.data));
   }, [id]);
 
   const [formData, setFormData] = useState({
@@ -40,15 +38,20 @@ function MidArea() {
       return;
     }
 
-    axios
-      .post(`http://127.0.0.1:8000/api/products/${id}/reviews/`, {
+    api
+      .post(`/products/${id}/reviews/`, {
         ...formData,
         turnstile_token: turnstileToken,
       })
       .then((res) => {
         setReviews([res.data, ...reviews]);
         setShowModal(false);
-        setFormData({ name: "", email: "", rating: 5, comment: "" });
+        setFormData({
+          name: "",
+          email: "",
+          rating: 5,
+          comment: "",
+        });
         setTurnstileToken(null);
       })
       .catch((err) => {
@@ -61,19 +64,13 @@ function MidArea() {
         } else {
           setReviewError("حدث خطأ أثناء إرسال المراجعة. حاول مرة أخرى.");
         }
-        console.log(err);
       });
   };
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/products/${id}`)
-      .then((response) => {
-        setProduct(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    api.get(`/products/${id}`).then((response) => {
+      setProduct(response.data);
+    });
   }, [id]);
 
   const [showModal, setShowModal] = useState(false);

@@ -1,12 +1,12 @@
 from decimal import Decimal
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q, Sum, F, ExpressionWrapper, DecimalField
 from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 
@@ -23,6 +23,7 @@ from products.decorators import rate_limit
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_order(request):
+    # ده صح إنه AllowAny - العميل لسه معملش تسجيل دخول وبيعمل أوردر جديد
     turnstile_token = request.data.get("turnstile_token")
     client_ip = get_client_ip(request)
 
@@ -40,7 +41,7 @@ def create_order(request):
 
 
 @api_view(['GET'])
-@login_required
+@staff_member_required
 def dashboard_orders(request):
     orders = Order.objects.all().order_by('-created_at')
     search_query = request.GET.get('search', '').strip()
@@ -62,8 +63,10 @@ def dashboard_orders(request):
     return render(request, 'orders/dashboard/orders_list.html', context)
 
 
+# ⚠️ تم تغييرها من AllowAny لـ IsAdminUser - كانت بتسمح لأي حد يعدل حالة أي طلب
+# ويشوف بيانات العميل الكاملة (اسم، إيميل، تليفون) من غير أي تسجيل دخول
 @api_view(['GET', 'PUT'])
-@permission_classes([AllowAny])
+@permission_classes([IsAdminUser])
 def order_detail(request, pk):
     try:
         order = Order.objects.get(id=pk)
@@ -118,15 +121,16 @@ def order_detail(request, pk):
         return Response(OrderSerializer(order).data)
 
 
+# ⚠️ تم تغييرها من AllowAny لـ IsAdminUser - كانت بتكشف بيانات كل العملاء لأي زائر
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAdminUser])
 def get_orders(request):
     orders = Order.objects.all().order_by('-created_at')
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
 
 
-@login_required
+@staff_member_required
 def order_detail_view(request, pk):
     order = get_object_or_404(Order, id=pk)
     products = Product.objects.all()
@@ -189,7 +193,7 @@ def order_detail_view(request, pk):
     return render(request, 'orders/order_detail.html', context)
 
 
-@login_required
+@staff_member_required
 def order_delete_view(request, pk):
     order = get_object_or_404(Order, id=pk)
 
@@ -202,6 +206,7 @@ def order_delete_view(request, pk):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def track_order(request, tracking_number):
+    # ده صح إنه AllowAny - العميل بيتتبع طلبه برقم التتبع اللي معاه بس
     try:
         order = Order.objects.get(tracking_number=tracking_number)
     except Order.DoesNotExist:

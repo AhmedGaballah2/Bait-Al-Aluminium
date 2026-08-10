@@ -1,0 +1,97 @@
+services:
+  db:
+    image: postgres:17
+    container_name: aluminium_db
+    restart: unless-stopped
+
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    # لا تفتح البورت للعالم الخارجي في البروداكشن
+    # لو محتاج توصل للداتابيز من جهازك للـ debugging افتحها على localhost بس:
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./Back-End
+      dockerfile: Dockerfile.prod
+
+    container_name: aluminium_backend
+    restart: unless-stopped
+
+    command: >
+      sh -c "
+      python manage.py migrate --noinput &&
+      python manage.py collectstatic --noinput &&
+      gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60
+      "
+
+    # مفيش volume للكود هنا - الكود بيبقى جوه الـ image نفسها
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - logs_volume:/app/logs
+
+    expose:
+      - "8000"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: ./Front-End
+      dockerfile: Dockerfile.prod
+
+    container_name: aluminium_frontend
+    restart: unless-stopped
+
+    # الـ build بينتج ملفات static، فبنستخدم nginx بسيط يخدمها لحد ما الـ nginx الرئيسي ياخدها
+    volumes:
+      - frontend_dist:/usr/share/nginx/html
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: aluminium_nginx
+    restart: unless-stopped
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+      - frontend_dist:/usr/share/nginx/html:ro
+      # لو هتستخدم SSL certificates (Let's Encrypt مثلاً)
+      # - ./nginx/certs:/etc/nginx/certs:ro
+
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  frontend_dist:
+  logs_volume:

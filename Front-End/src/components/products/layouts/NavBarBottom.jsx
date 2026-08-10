@@ -9,6 +9,8 @@ import {
   faWhatsapp,
 } from "@fortawesome/free-brands-svg-icons";
 
+import api from "../../../services/api";
+
 function NavBarBottom() {
   const location = useLocation();
 
@@ -32,17 +34,11 @@ function NavBarBottom() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/categories/")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch((err) => console.log(err));
+    api.get("/categories/").then((res) => setCategories(res.data));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/offers/")
-      .then((res) => res.json())
-      .then((data) => setOffers(data))
-      .catch((err) => console.log(err));
+    api.get("/offers/").then((res) => setOffers(res.data));
   }, []);
 
   return (

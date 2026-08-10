@@ -3,11 +3,12 @@ import "./ProductDetailsContent.css";
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
-import axios from "axios";
 
 import TopArea from "./products/layouts/TopAreaProductDetails";
 import MidArea from "./products/layouts/MidAreaProductDetails";
 import RelatedProducts from "./products/layouts/RelatedProducts";
+
+import api from "../services/api";
 
 function ProductDetailsContent() {
   const { id } = useParams();
@@ -15,14 +16,9 @@ function ProductDetailsContent() {
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/products/${id}`)
-      .then((response) => {
-        setProduct(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    api.get(`/products/${id}`).then((response) => {
+      setProduct(response.data);
+    });
   }, [id]);
 
   const location = useLocation();

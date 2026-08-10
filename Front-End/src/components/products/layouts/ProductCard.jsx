@@ -13,6 +13,8 @@ import { useCart } from "./CartContext";
 
 import { useState } from "react";
 
+import { getMediaUrl } from "../../../services/api";
+
 function ProductCard({
   image,
   name,
@@ -91,7 +93,7 @@ function ProductCard({
           state={{ productName: name }}
           style={{ width: "100%", height: "100%" }}
         >
-          <img src={`http://127.0.0.1:8000${image}`} alt="#" />
+          <img src={getMediaUrl(image)} alt="#" />
         </NavLink>
 
         <div className="button">

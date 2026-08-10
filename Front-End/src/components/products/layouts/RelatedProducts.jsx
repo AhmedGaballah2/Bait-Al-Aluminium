@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
-import axios from "axios";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -10,6 +9,8 @@ import "swiper/css/navigation";
 
 import ProductCard from "./ProductCard";
 
+import api from "../../../services/api";
+
 function RelatedProducts() {
   const { id } = useParams();
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -17,10 +18,9 @@ function RelatedProducts() {
   useEffect(() => {
     if (!id) return;
 
-    axios
-      .get(`http://127.0.0.1:8000/api/products/${id}/related/`)
-      .then((res) => setRelatedProducts(res.data))
-      .catch((err) => console.log(err));
+    api
+      .get(`/products/${id}/related/`)
+      .then((res) => setRelatedProducts(res.data));
   }, [id]);
 
   return (

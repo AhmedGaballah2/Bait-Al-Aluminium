@@ -8,6 +8,8 @@ import { NavLink } from "react-router";
 
 import { useCart } from "./products/layouts/CartContext";
 
+import { getMediaUrl } from "../services/api";
+
 const getItemKey = (item) => item.key ?? `${item.type || "product"}-${item.id}`;
 const getItemRoute = (item) =>
   item.type === "offer" ? `/offer/${item.id}` : `/product/${item.id}`;
@@ -81,7 +83,7 @@ function CartDetails() {
                         }
                       >
                         <img
-                          src={`http://127.0.0.1:8000${item.image}`}
+                          src={getMediaUrl(item.image)}
                           alt={item.title || item.name}
                         />
                       </NavLink>

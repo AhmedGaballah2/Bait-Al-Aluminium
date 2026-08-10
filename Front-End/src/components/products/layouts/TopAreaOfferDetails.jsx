@@ -11,10 +11,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 import { NavLink, useParams } from "react-router";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
+
+import api from "../../../services/api";
+
+import { getMediaUrl } from "../../../services/api";
 
 function TopAreaOffer() {
   const { addToWishlist, removeFromWishlist, isFavorite } = useWishlist();
@@ -27,22 +30,14 @@ function TopAreaOffer() {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/offers/${id}`)
-      .then((response) => {
-        setOffer(response.data);
-        setMainImage(response.data.image);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    api.get(`/offers/${id}`).then((response) => {
+      setOffer(response.data);
+      setMainImage(response.data.image);
+    });
   }, [id]);
 
   useEffect(() => {
-    axios
-      .get(`http://127.0.0.1:8000/api/offers/${id}/reviews/`)
-      .then((res) => setReviews(res.data))
-      .catch((err) => console.log(err));
+    api.get(`/offers/${id}/reviews/`).then((res) => setReviews(res.data));
   }, [id]);
 
   const increase = () => {
@@ -122,9 +117,7 @@ function TopAreaOffer() {
             <div className="product-images">
               <main id="gallery">
                 <div className="main-img">
-                  {mainImage && (
-                    <img src={`http://127.0.0.1:8000${mainImage}`} alt="" />
-                  )}
+                  {mainImage && <img src={getMediaUrl(mainImage)} alt="" />}
                 </div>
                 <div className="images">
                   {offer &&
@@ -139,7 +132,7 @@ function TopAreaOffer() {
                       .map((image, index) => (
                         <img
                           key={index}
-                          src={`http://127.0.0.1:8000${image}`}
+                          src={getMediaUrl(image)}
                           alt={`offer-${index + 1}`}
                           onClick={() => setMainImage(image)}
                           className={mainImage === image ? "active" : ""}

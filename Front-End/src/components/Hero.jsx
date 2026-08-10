@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { tns } from "tiny-slider";
 import "tiny-slider/dist/tiny-slider.css";
 
+import api from "../services/api";
+
 import "../components/Hero.css";
 
 function Hero() {
@@ -9,19 +11,13 @@ function Hero() {
   const [newArrival, setNewArrival] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/products/?is_featured_new_arrival=true")
-      .then((res) => res.json())
-      .then((data) => setNewArrival(data))
-      .catch((err) => console.log(err));
+    api
+      .get("/products/?is_featured_new_arrival=true")
+      .then((res) => setNewArrival(res.data));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/offers/")
-      .then((res) => res.json())
-      .then((data) => {
-        setOffers(data);
-      })
-      .catch((err) => console.log(err));
+    api.get("/offers/").then((res) => setOffers(res.data));
   }, []);
 
   useEffect(() => {
@@ -55,7 +51,7 @@ function Hero() {
                     key={offer.id}
                     className="single-slider"
                     style={{
-                      backgroundImage: `url(http://localhost:8000${offer.image})`,
+                      backgroundImage: `url(${import.meta.env.VITE_MEDIA_BASE_URL.replace("/api", "")}${offer.image})`,
                     }}
                   >
                     <div className="content">
@@ -90,7 +86,7 @@ function Hero() {
                     key={product.id}
                     className="hero-small-banner"
                     style={{
-                      backgroundImage: `url(http://localhost:8000${product.image})`,
+                      backgroundImage: `url(${import.meta.env.VITE_MEDIA_BASE_URL.replace("/api", "")}${product.image})`,
                     }}
                   >
                     <div className="content">

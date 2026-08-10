@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Q, Sum, F, ExpressionWrapper, DecimalField
 from django.shortcuts import get_object_or_404, redirect, render
@@ -38,7 +38,7 @@ def _dashboard_context(request, active_page, queryset, search_fields=None):
     }
 
 
-@login_required
+@staff_member_required
 def dashboard(request):
     total_products = Product.objects.count()
     total_categories = Category.objects.count()
@@ -86,7 +86,7 @@ def dashboard(request):
     return render(request, 'dashboard/dashboard.html', context)
 
 
-@login_required
+@staff_member_required
 def dashboard_products(request):
     products = Product.objects.select_related('category').order_by('-added_at')
     context = _dashboard_context(
@@ -98,7 +98,7 @@ def dashboard_products(request):
     return render(request, 'dashboard/products_list.html', context)
 
 
-@login_required
+@staff_member_required
 def dashboard_reviews(request):
     reviews = Review.objects.select_related('product').order_by('-created_at')
     context = _dashboard_context(
@@ -110,7 +110,7 @@ def dashboard_reviews(request):
     return render(request, 'dashboard/reviews_list.html', context)
 
 
-@login_required
+@staff_member_required
 def dashboard_categories(request):
     categories = Category.objects.all().order_by('name')
     search_query = request.GET.get('search', '').strip()
@@ -126,7 +126,7 @@ def dashboard_categories(request):
     return render(request, 'dashboard/categories_list.html', context)
 
 
-@login_required
+@staff_member_required
 def add_category(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
@@ -143,7 +143,7 @@ def add_category(request):
     return render(request, 'dashboard/category_form.html', {'active_page': 'categories'})
 
 
-@login_required
+@staff_member_required
 def edit_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
 
@@ -163,7 +163,7 @@ def edit_category(request, pk):
     return render(request, 'dashboard/category_form.html', {'category': category, 'active_page': 'categories'})
 
 
-@login_required
+@staff_member_required
 def delete_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
 
