@@ -48,9 +48,10 @@ beit-al-aluminium/
 │   ├── config/              # Django settings, urls, wsgi/asgi
 │   ├── products/             # Products & categories app
 │   ├── reviews/               # Product reviews app
-│   ├── cart/                    # Shopping cart app
+│   ├── offers/                    # Offers app
 │   ├── orders/                    # Order management & tracking app
 │   ├── accounts/                    # User authentication & admin
+|   ├── .....
 │   ├── requirements.txt
 │   └── Dockerfile
 │
@@ -82,8 +83,8 @@ beit-al-aluminium/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/<your-username>/beit-al-aluminium.git
-cd beit-al-aluminium
+git clone https://github.com/AhmedGaballah2/Bait-Al-Aluminium.git
+cd Bait-Al-Aluminium
 ```
 
 ### 2. Set up environment variables
