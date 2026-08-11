@@ -11,6 +11,11 @@ __pycache__/
 # Django
 db.sqlite3
 media/
+
+!media/
+!media/logo/
+!media/logo/Logo Vertical.png
+
 staticfiles/
 
 # Node
