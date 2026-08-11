@@ -29,6 +29,8 @@ function ProductCard({
 }) {
   const { addToCart } = useCart();
 
+  const isOutOfStock = !stock || stock <= 0;
+
   const renderStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -64,6 +66,8 @@ function ProductCard({
   const [added, setAdded] = useState(false);
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
+
     addToCart(
       {
         id,
@@ -87,7 +91,7 @@ function ProductCard({
 
   return (
     <div className="single-product position-relative">
-      <div className="product-image">
+      <div className="product-image position-relative">
         <NavLink
           to={`/product/${id}`}
           state={{ productName: name }}
@@ -96,16 +100,39 @@ function ProductCard({
           <img src={getMediaUrl(image)} alt="#" />
         </NavLink>
 
+        {isOutOfStock && (
+          <div
+            className="d-flex align-items-center justify-content-center position-absolute"
+            style={{
+              top: "50%",
+              left: 0,
+              width: "100%",
+              transform: "translateY(-50%)",
+              backgroundColor: "rgba(220, 53, 69, 0.75)",
+              color: "#fff",
+              padding: "6px 0",
+              fontWeight: "bold",
+              zIndex: 2,
+            }}
+          >
+            الكمية غير متوفرة
+          </div>
+        )}
+
         <div className="button">
           <button
             className={`btn ${added ? "added" : ""}`}
             onClick={handleAddToCart}
-            disabled={added}
+            disabled={added || isOutOfStock}
           >
             <FontAwesomeIcon icon={faCartShopping} />
 
             <span className="me-2">
-              {added ? "تمت الإضافة " : "أضف للعربة"}
+              {isOutOfStock
+                ? "غير متوفر"
+                : added
+                  ? "تمت الإضافة "
+                  : "أضف للعربة"}
             </span>
           </button>
         </div>

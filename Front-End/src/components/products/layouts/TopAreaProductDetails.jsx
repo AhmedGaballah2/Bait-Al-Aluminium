@@ -29,7 +29,7 @@ function TopArea() {
   const [added, setAdded] = useState(false);
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || isOutOfStock) return;
 
     addToCart(
       {
@@ -120,6 +120,8 @@ function TopArea() {
 
     return stars;
   };
+
+  const isOutOfStock = product && (!product.stock || product.stock <= 0);
 
   return (
     <>
@@ -242,12 +244,16 @@ function TopArea() {
                       <button
                         className={`btn ${added ? "added" : ""}`}
                         onClick={handleAddToCart}
-                        disabled={added}
+                        disabled={added || isOutOfStock}
                       >
                         <FontAwesomeIcon icon={faCartShopping} />
 
                         <span className="me-2">
-                          {added ? "تمت الإضافة " : "أضف للعربة"}
+                          {isOutOfStock
+                            ? "غير متوفر"
+                            : added
+                              ? "تمت الإضافة "
+                              : "أضف للعربة"}
                         </span>
                       </button>
                     </div>

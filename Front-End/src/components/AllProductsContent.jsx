@@ -60,6 +60,22 @@ function AllProductsContent() {
     ).length,
   }));
 
+  const [selectedStock, setSelectedStock] = useState([]);
+
+  const stockFilters = [
+    { id: "in_stock", label: "متوفر", predicate: (p) => p.stock > 0 },
+    {
+      id: "out_of_stock",
+      label: "غير متوفر",
+      predicate: (p) => !p.stock || p.stock <= 0,
+    },
+  ];
+
+  const stockFiltersWithCount = stockFilters.map((filter) => ({
+    ...filter,
+    count: products.filter(filter.predicate).length,
+  }));
+
   useEffect(() => {
     if (!products.length) return;
 
@@ -168,6 +184,15 @@ function AllProductsContent() {
       return false;
     }
 
+    // ✅ فلتر الستوك الجديد
+    if (selectedStock.length > 0) {
+      const matchesStock = selectedStock.some((filterId) => {
+        const filter = stockFilters.find((f) => f.id === filterId);
+        return filter ? filter.predicate(product) : false;
+      });
+      if (!matchesStock) return false;
+    }
+
     if (
       searchTerm.trim() &&
       !product.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
@@ -194,6 +219,14 @@ function AllProductsContent() {
 
     if (selectedCategory && offer.category !== selectedCategory) {
       return false;
+    }
+
+    if (selectedStock.length > 0) {
+      const matchesStock = selectedStock.some((filterId) => {
+        const filter = stockFilters.find((f) => f.id === filterId);
+        return filter ? filter.predicate(offer) : false;
+      });
+      if (!matchesStock) return false;
     }
 
     if (
@@ -291,6 +324,25 @@ function AllProductsContent() {
     setSearchParams(newParams);
   };
 
+  const handleStockToggle = (filterId) => {
+    setSelectedStock((prev) =>
+      prev.includes(filterId)
+        ? prev.filter((id) => id !== filterId)
+        : [...prev, filterId],
+    );
+  };
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [
+    priceRange,
+    selectedPrice,
+    selectedCategory,
+    searchTerm,
+    sortOption,
+    selectedStock,
+  ]);
+
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -324,6 +376,7 @@ function AllProductsContent() {
                   </button>
                 </form>
               </div>
+
               <div className="single-widget">
                 <h3>جميع الفئات</h3>
                 <ul className="list">
@@ -341,6 +394,24 @@ function AllProductsContent() {
                       >
                         {category.name} ({categoryCounts[category.name] || 0})
                       </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="single-widget condition">
+                <h3>تصفية حسب التوفر</h3>
+
+                <ul className="price-filter-list">
+                  {stockFiltersWithCount.map((filter) => (
+                    <li key={filter.id}>
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selectedStock.includes(filter.id)}
+                          onChange={() => handleStockToggle(filter.id)}
+                        />
+                        {filter.label} ({filter.count})
+                      </label>
                     </li>
                   ))}
                 </ul>
