@@ -13,10 +13,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN useradd -m appuser && chown -R appuser:appuser /app
+# نحفظ نسخة من الـmedia داخل الـDocker image
+# عشان Railway Volume مش هيغطي النسخة دي
+RUN cp -a /app/media /app/media_initial
 
-USER appuser
+# إنشاء المستخدم
+RUN useradd -m appuser \
+    && chown -R appuser:appuser /app
+
+# entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 8000
 
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+ENTRYPOINT ["/entrypoint.sh"]
