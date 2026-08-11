@@ -18,9 +18,11 @@ function RelatedProducts() {
   useEffect(() => {
     if (!id) return;
 
-    api
-      .get(`/products/${id}/related/`)
-      .then((res) => setRelatedProducts(res.data));
+    api.get(`/products/${id}/related/`).then((res) => {
+      // نستبعد أي منتج ستوكه صفر أو مش موجود
+      const inStockProducts = res.data.filter((product) => product.stock > 0);
+      setRelatedProducts(inStockProducts);
+    });
   }, [id]);
 
   return (
@@ -38,7 +40,7 @@ function RelatedProducts() {
         }}
       >
         {relatedProducts.map((product) => (
-          <SwiperSlide>
+          <SwiperSlide key={product.id}>
             <ProductCard
               image={product.image}
               name={product.name}
@@ -49,6 +51,7 @@ function RelatedProducts() {
               isNew={product.is_new}
               id={product.id}
               averageRating={product.average_rating}
+              stock={product.stock}
             />
           </SwiperSlide>
         ))}
