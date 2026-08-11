@@ -107,38 +107,46 @@ function FavDetials() {
                     </div>
 
                     <div className="col-lg-2 col-md-2 col-12">
-                      <button
-                        className={`btn ${addedId === getAddedId(item) ? "added" : ""}`}
-                        onClick={() => {
-                          addToCart(
-                            {
-                              id: item.id,
-                              type: item.type || "product",
-                              name: item.title || item.name,
-                              title: item.title || item.name,
-                              image: item.image,
-                              price: item.price,
-                              stock: item.stock,
-                              oldPrice: item.oldPrice || item.old_price,
-                              category: item.category,
-                            },
-                            1,
-                          );
+                      {item.stock > 0 ? (
+                        <button
+                          className={`btn ${addedId === getAddedId(item) ? "added" : ""}`}
+                          onClick={() => {
+                            addToCart(
+                              {
+                                id: item.id,
+                                type: item.type || "product",
+                                name: item.title || item.name,
+                                title: item.title || item.name,
+                                image: item.image,
+                                price: item.price,
+                                stock: item.stock,
+                                oldPrice: item.oldPrice || item.old_price,
+                                category: item.category,
+                              },
+                              1,
+                            );
 
-                          setAddedId(getAddedId(item));
+                            setAddedId(getAddedId(item));
 
-                          setTimeout(() => {
-                            setAddedId(null);
-                          }, 2000);
-                        }}
-                        disabled={addedId === getAddedId(item)}
-                      >
-                        <FontAwesomeIcon icon={faCartShopping} />
-
-                        <span className="me-2">
-                          {addedId === item.id ? "تمت الإضافة" : "أضف للعربة"}
-                        </span>
-                      </button>
+                            setTimeout(() => {
+                              setAddedId(null);
+                            }, 2000);
+                          }}
+                          disabled={addedId === getAddedId(item)}
+                        >
+                          <FontAwesomeIcon icon={faCartShopping} />
+                          <span className="me-2">
+                            {addedId === getAddedId(item)
+                              ? "تمت الإضافة"
+                              : "أضف للعربة"}
+                          </span>
+                        </button>
+                      ) : (
+                        <button className="btn out-of-stock" disabled>
+                          <FontAwesomeIcon icon={faXmark} />
+                          <span className="me-2">غير متوفر</span>
+                        </button>
+                      )}
                     </div>
 
                     <div className="col-lg-1 col-md-2 col-12">
