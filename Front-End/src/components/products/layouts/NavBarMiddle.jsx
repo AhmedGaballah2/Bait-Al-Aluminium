@@ -11,12 +11,14 @@ import {
 import logo from "../../../assets/Logos/Logo TopBar1.png";
 
 import { useCart } from "./CartContext";
+import { useWishlist } from "./WishlistContext";
 import NavbarSearchForm from "./NavbarSearchForm";
 
 import { getMediaUrl } from "../../../services/api";
 
 function NavBarMiddle() {
   const { cartItems, removeFromCart } = useCart();
+  const { wishlist } = useWishlist();
 
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -59,7 +61,7 @@ function NavBarMiddle() {
                           style={{ color: "#081828" }}
                         />
                       </i>
-                      <span className="total-items">0</span>
+                      <span className="total-items">{wishlist.length}</span>
                     </NavLink>
                   </div>
                   <div className="cart-items">
