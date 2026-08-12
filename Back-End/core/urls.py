@@ -19,14 +19,18 @@ from django.urls import path, include
 from django.conf import settings
 from django.views.static import serve
 from django.urls import re_path
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    path('', RedirectView.as_view(pattern_name='accounts:login')),
+
     path('', include('new_arrivals.urls', namespace='new_arrivals')),
     path('', include('offers.urls', namespace='offers')),
     path('', include('orders.urls', namespace='orders')),
     path('', include('accounts.urls', namespace='accounts')),
     path('', include('dashboard.urls', namespace='dashboard')),
     path('', include('products.urls', namespace='products')),
+    
     path('admin/', admin.site.urls),
 
     re_path(
