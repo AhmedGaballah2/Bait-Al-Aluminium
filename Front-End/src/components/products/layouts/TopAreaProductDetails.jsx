@@ -26,7 +26,22 @@ import api from "../../../services/api";
 import { getMediaUrl } from "../../../services/api";
 
 function TopArea() {
+  const { addToWishlist, removeFromWishlist, isFavorite } = useWishlist();
+  const { addToCart } = useCart();
+  const { id } = useParams();
+
+  const [product, setProduct] = useState(null);
   const [added, setAdded] = useState(false);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  const currentPrice = selectedSize
+    ? Number(selectedSize.price)
+    : Number(product?.price ?? 0);
+  const currentStock = selectedSize
+    ? Number(selectedSize.stock)
+    : Number(product?.stock ?? 0);
+  const isOutOfStock = currentStock <= 0;
 
   const handleAddToCart = () => {
     if (!product || isOutOfStock) return;
@@ -36,10 +51,12 @@ function TopArea() {
         id: product.id,
         name: product.name,
         image: product.image,
-        price: product.price,
-        stock: product.stock,
+        price: Number(currentPrice),
+        stock: currentStock,
         oldPrice: product.old_price,
         category: product.category,
+        size_id: selectedSize?.id ?? null,
+        size_name: selectedSize?.name ?? null,
       },
       quantity,
     );
@@ -51,27 +68,18 @@ function TopArea() {
     }, 2000);
   };
 
-  const { addToWishlist, removeFromWishlist, isFavorite } = useWishlist();
-
-  const { addToCart } = useCart();
-
-  const { id } = useParams();
-
-  const [product, setProduct] = useState(null);
-
   const [mainImage, setMainImage] = useState("");
 
   useEffect(() => {
     api.get(`/products/${id}`).then((response) => {
       setProduct(response.data);
       setMainImage(response.data.image);
+      setSelectedSize(response.data.sizes?.[0] ?? null);
     });
   }, [id]);
 
-  const [quantity, setQuantity] = useState(1);
-
   const increase = () => {
-    setQuantity((prev) => (prev < product?.stock ? prev + 1 : prev));
+    setQuantity((prev) => (prev < currentStock ? prev + 1 : prev));
   };
 
   const decrease = () => {
@@ -83,6 +91,20 @@ function TopArea() {
   useEffect(() => {
     api.get(`/products/${id}/reviews/`).then((res) => setReviews(res.data));
   }, [id]);
+
+  useEffect(() => {
+    if (!product || !product.sizes?.length) {
+      setSelectedSize(null);
+      return;
+    }
+
+    setSelectedSize((prev) => {
+      if (!prev) return product.sizes[0];
+      return (
+        product.sizes.find((size) => size.id === prev.id) ?? product.sizes[0]
+      );
+    });
+  }, [product]);
 
   const averageRating =
     reviews.length > 0
@@ -120,8 +142,6 @@ function TopArea() {
 
     return stars;
   };
-
-  const isOutOfStock = product && (!product.stock || product.stock <= 0);
 
   return (
     <>
@@ -170,9 +190,31 @@ function TopArea() {
                 </NavLink>
               </p>
               <h3 className="price">
-                {product?.price} جنيه &nbsp;
+                {currentPrice} جنيه &nbsp;
                 <span className="old-price">{product?.old_price} جنيه</span>
               </h3>
+
+              {product?.sizes?.length > 0 && (
+                <div className="mb-3" dir="rtl">
+                  <p className="fw-bold mb-2">المقاسات:</p>
+                  <div className="d-flex flex-wrap gap-2">
+                    {product.sizes.map((size) => (
+                      <button
+                        type="button"
+                        key={size.id}
+                        className={`btn btn-sm ${selectedSize?.id === size.id ? "btn-primary" : "btn-outline-primary"}`}
+                        onClick={() => {
+                          setSelectedSize(size);
+                          setQuantity(1);
+                        }}
+                        disabled={size.stock <= 0}
+                      >
+                        {size.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="rating" dir="rtl">
                 {renderStars(averageRating)}
@@ -182,10 +224,10 @@ function TopArea() {
               </div>
 
               <div className="info-text">{product?.description}</div>
-              {product?.stock <= 5 && (
+              {currentStock <= 5 && (
                 <p className="text-danger mt-2 fw-bold">
                   <FontAwesomeIcon icon={faTriangleExclamation} /> متبقي{" "}
-                  {product?.stock} فقط في المخزون
+                  {currentStock} فقط في المخزون
                 </p>
               )}
               <div className="bottom-content">
@@ -199,7 +241,11 @@ function TopArea() {
                       <div className="quantity-box fw-bold fs-5">
                         {quantity}
                       </div>
-                      <button className="btn btn-primary" onClick={increase}>
+                      <button
+                        className="btn btn-primary"
+                        onClick={increase}
+                        disabled={quantity >= currentStock}
+                      >
                         <FontAwesomeIcon icon={faPlus} />
                       </button>
                     </div>

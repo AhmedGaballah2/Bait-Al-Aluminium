@@ -2,7 +2,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
 
-const getItemKey = (item) => item.key ?? `${item.type || "product"}-${item.id}`;
+const getItemKey = (item) =>
+  item.key ?? `${item.type || "product"}-${item.id}-${item.size_id ?? "base"}`;
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState(() => {

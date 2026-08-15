@@ -100,7 +100,25 @@ def order_detail(request, pk):
                 except Product.DoesNotExist:
                     continue
 
-                if product.stock < item.quantity:
+                if item.size_id:
+                    try:
+                        size = product.sizes.get(id=item.size_id)
+                    except Product.DoesNotExist:
+                        return Response(
+                            {"error": f"المقاس الخاص بالمنتج {product.name} غير موجود."},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+
+                    if size.stock < item.quantity:
+                        return Response(
+                            {
+                                "error": f"المخزون غير كافٍ للمقاس: {size.name} - {product.name}",
+                                "available_stock": size.stock,
+                                "requested_quantity": item.quantity,
+                            },
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                elif product.stock < item.quantity:
                     return Response(
                         {
                             "error": f"المخزون غير كافٍ للمنتج: {product.name}",
@@ -112,8 +130,14 @@ def order_detail(request, pk):
 
             for item in order.items.all():
                 product = Product.objects.get(id=item.product_id)
-                product.stock -= item.quantity
-                product.save(update_fields=['stock'])
+                if item.size_id:
+                    size = product.sizes.filter(id=item.size_id).first()
+                    if size:
+                        size.stock -= item.quantity
+                        size.save(update_fields=['stock'])
+                else:
+                    product.stock -= item.quantity
+                    product.save(update_fields=['stock'])
 
             order.stock_deducted = True
 
@@ -139,12 +163,13 @@ def order_detail_view(request, pk):
     if request.method == 'POST' and request.POST.get('action') == 'update_items':
         item_ids = request.POST.getlist('item_id')
         product_ids = request.POST.getlist('product_id')
+        size_ids = request.POST.getlist('size_id')
         quantities = request.POST.getlist('quantity')
 
         total_price = Decimal('0')
         products_count = 0
 
-        for item_id, product_id, quantity_str in zip(item_ids, product_ids, quantities):
+        for item_id, product_id, size_id, quantity_str in zip(item_ids, product_ids, size_ids, quantities):
             try:
                 quantity = int(quantity_str)
             except (ValueError, TypeError):
@@ -160,24 +185,38 @@ def order_detail_view(request, pk):
             except (Product.DoesNotExist, ValueError, TypeError):
                 continue
 
+            selected_size = None
+            if size_id:
+                try:
+                    selected_size = selected_product.sizes.get(id=int(size_id))
+                except (Product.DoesNotExist, ValueError, TypeError):
+                    selected_size = None
+
+            unit_price = selected_size.price if selected_size else selected_product.price
+            size_name = selected_size.name if selected_size else None
+
             if item_id:
                 item = OrderItem.objects.filter(id=item_id, order=order).first()
                 if item:
                     item.product_id = selected_product.id
+                    item.size_id = selected_size.id if selected_size else None
+                    item.size_name = size_name
                     item.product_name = selected_product.name
-                    item.price = selected_product.price
+                    item.price = unit_price
                     item.quantity = quantity
                     item.save()
             else:
                 OrderItem.objects.create(
                     order=order,
                     product_id=selected_product.id,
+                    size_id=selected_size.id if selected_size else None,
+                    size_name=size_name,
                     product_name=selected_product.name,
-                    price=selected_product.price,
+                    price=unit_price,
                     quantity=quantity,
                 )
 
-            total_price += selected_product.price * quantity
+            total_price += unit_price * quantity
             products_count += quantity
 
         order.total_price = total_price

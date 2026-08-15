@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -305,6 +305,54 @@ def delete_category(request, pk):
         }
     )
 
+def _save_product_sizes(product, request):
+    size_names = request.POST.getlist('size_name')
+    size_prices = request.POST.getlist('size_price')
+    size_stocks = request.POST.getlist('size_stock')
+    size_ids = request.POST.getlist('size_id')
+
+    if not size_names:
+        product.sizes.all().delete()
+        return
+
+    valid_ids = []
+    for index, name in enumerate(size_names):
+        cleaned_name = (name or '').strip()
+        if not cleaned_name:
+            continue
+
+        try:
+            price = Decimal((size_prices[index] if index < len(size_prices) else '0').strip() or '0')
+        except (InvalidOperation, ValueError):
+            raise ValueError(f'السعر غير صالح للمقاس: {cleaned_name}')
+
+        try:
+            stock = int((size_stocks[index] if index < len(size_stocks) else '0').strip() or '0')
+        except (TypeError, ValueError):
+            stock = 0
+
+        size_id = (size_ids[index] if index < len(size_ids) else '')
+        size = None
+        if size_id:
+            size = product.sizes.filter(pk=size_id).first()
+
+        if size is None:
+            size = product.sizes.create(
+                name=cleaned_name,
+                price=price,
+                stock=stock,
+            )
+        else:
+            size.name = cleaned_name
+            size.price = price
+            size.stock = stock
+            size.save()
+
+        valid_ids.append(size.id)
+
+    product.sizes.exclude(pk__in=valid_ids).delete()
+
+
 @staff_member_required
 def product_details(request, pk):
     product = get_object_or_404(Product, pk=pk)
@@ -323,7 +371,12 @@ def add_product(request):
         form = ProductForm(request.POST, request.FILES)
 
         if form.is_valid():
-            form.save()
+            product = form.save()
+            try:
+                _save_product_sizes(product, request)
+            except ValueError as exc:
+                form.add_error(None, str(exc))
+                return render(request, 'products/add_product.html', {'form': form})
             return redirect("dashboard:dashboard_products")
     else:
         form = ProductForm()
@@ -344,16 +397,26 @@ def edit_product(request, pk):
 
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES, instance=product)
-        
+
         if form.is_valid():
-            form.save()
+            product = form.save()
+            try:
+                _save_product_sizes(product, request)
+            except ValueError as exc:
+                form.add_error(None, str(exc))
+                return render(request, 'products/edit_product.html', {
+                    'form': form,
+                    'product': product,
+                    'product_sizes': product.sizes.all(),
+                })
             return redirect("dashboard:dashboard_products")
     else:
         form = ProductForm(instance=product)
 
     return render(request, 'products/edit_product.html', {
         'form': form,
-        'product': product
+        'product': product,
+        'product_sizes': product.sizes.all(),
     })
 
 @staff_member_required
