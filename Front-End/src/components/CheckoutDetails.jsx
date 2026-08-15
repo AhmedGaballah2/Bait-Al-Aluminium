@@ -167,7 +167,9 @@ function CheckoutDetails() {
 
         items: cartItems.map((item) => ({
           product_id: item.id,
+          size_id: item.size_id ?? null,
           product_name: item.name,
+          size_name: item.size_name ?? null,
           price: item.price,
           quantity: item.quantity,
         })),

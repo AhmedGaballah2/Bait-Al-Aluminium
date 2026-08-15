@@ -82,9 +82,58 @@
       </div>
       {% endfor %}
 
+      <div class="mb-4">
+        <h5 class="mb-3">المقاسات والسعر لكل مقاس</h5>
+        <div id="size-container">
+          <div class="row g-2 size-row mb-2">
+            <div class="col-md-4">
+              <input type="text" name="size_name" class="form-control" placeholder="اسم المقاس" />
+            </div>
+            <div class="col-md-4">
+              <input type="number" step="0.01" min="0" name="size_price" class="form-control" placeholder="سعر المقاس" />
+            </div>
+            <div class="col-md-3">
+              <input type="number" min="0" name="size_stock" class="form-control" placeholder="المخزون" />
+            </div>
+            <div class="col-md-1 text-end">
+              <button type="button" class="btn btn-outline-danger btn-sm remove-size">حذف</button>
+            </div>
+          </div>
+        </div>
+        <button type="button" id="add-size-btn" class="btn btn-outline-primary btn-sm mt-2">إضافة مقاس</button>
+      </div>
+
       <button type="submit" class="btn btn-save">حفظ المنتج</button>
     </form>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('size-container');
+    const button = document.getElementById('add-size-btn');
+
+    button.addEventListener('click', function () {
+      const row = document.createElement('div');
+      row.className = 'row g-2 size-row mb-2';
+      row.innerHTML = `
+        <div class="col-md-4"><input type="text" name="size_name" class="form-control" placeholder="اسم المقاس" /></div>
+        <div class="col-md-4"><input type="number" step="0.01" min="0" name="size_price" class="form-control" placeholder="سعر المقاس" /></div>
+        <div class="col-md-3"><input type="number" min="0" name="size_stock" class="form-control" placeholder="المخزون" /></div>
+        <div class="col-md-1 text-end"><button type="button" class="btn btn-outline-danger btn-sm remove-size">حذف</button></div>
+      `;
+      container.appendChild(row);
+      row.querySelector('.remove-size').addEventListener('click', function () {
+        row.remove();
+      });
+    });
+
+    document.querySelectorAll('.remove-size').forEach(function (button) {
+      button.addEventListener('click', function () {
+        button.closest('.size-row').remove();
+      });
+    });
+  });
+</script>
 
 {% endblock %}

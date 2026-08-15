@@ -390,9 +390,19 @@
                 <tr>
                   <td>
                     <input type="hidden" name="item_id" value="{{ item.id }}" />
-                    <select name="product_id" class="form-select form-select-sm">
+                    <select name="product_id" class="form-select form-select-sm mb-2">
                       {% for product in products %}
                       <option value="{{ product.id }}" {% if product.id == item.product_id %}selected{% endif %}>{{ product.name }}</option>
+                      {% endfor %}
+                    </select>
+                    <select name="size_id" class="form-select form-select-sm">
+                      <option value="">بدون مقاس</option>
+                      {% for product in products %}
+                        {% if product.id == item.product_id %}
+                          {% for size in product.sizes.all %}
+                            <option value="{{ size.id }}" {% if item.size_id and item.size_id == size.id %}selected{% endif %}>{{ size.name }} — {{ size.price }} جنيه</option>
+                          {% endfor %}
+                        {% endif %}
                       {% endfor %}
                     </select>
                   </td>
