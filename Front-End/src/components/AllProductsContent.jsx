@@ -63,6 +63,9 @@ function AllProductsContent() {
     count: products.filter(
       (product) => product.price >= filter.min && product.price < filter.max,
     ).length,
+    offersCount: offers.filter(
+      (offer) => offer.price >= filter.min && offer.price < filter.max,
+    ).length,
   }));
 
   const [selectedStock, setSelectedStock] = useState([]);
@@ -81,24 +84,21 @@ function AllProductsContent() {
     count: products.filter(filter.predicate).length,
   }));
 
-  // 2) خلي الـ slider بياخد هامش أمان فوق أعلى سعر موجود فعليًا
   useEffect(() => {
-    if (!products.length) return;
+    const allPrices = [
+      ...products.map((p) => p.price),
+      ...offers.map((o) => o.price),
+    ].filter((p) => !isNaN(p));
 
-    const prices = products
-      .map((product) => product.price)
-      .filter((p) => !isNaN(p)); // احتياط لو فيه سعر مش رقم صحيح
+    if (!allPrices.length) return;
 
-    if (!prices.length) return;
-
-    const realMax = Math.max(...prices);
-    // نقرّب لأعلى مضاعف 1000 ونزود شوية هامش عشان أي منتج بيبقى بالظبط عند أعلى قيمة يفضل ظاهر
+    const realMax = Math.max(...allPrices);
     const bufferedMax = Math.ceil((realMax + 1) / 1000) * 1000;
 
     setMinPrice(0);
     setMaxPrice(bufferedMax);
     setPriceRange([0, bufferedMax]);
-  }, [products]);
+  }, [products, offers]); // ✅ ضفت offers في الـ dependency array كمان
 
   useEffect(() => {
     const fetchData = async () => {
