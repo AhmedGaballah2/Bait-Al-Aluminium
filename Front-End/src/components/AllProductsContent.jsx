@@ -46,11 +46,16 @@ function AllProductsContent() {
   // بيبقى true لما يكون بيحمّل الدفعة الجاية (لإظهار البريلودر)
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
+  // 1) وسّع نطاقات الـ checkboxes لحد 30000+
   const priceFilters = [
     { id: 1, min: 0, max: 500 },
     { id: 2, min: 500, max: 1000 },
     { id: 3, min: 1000, max: 2000 },
     { id: 4, min: 2000, max: 5000 },
+    { id: 5, min: 5000, max: 10000 },
+    { id: 6, min: 10000, max: 20000 },
+    { id: 7, min: 20000, max: 30000 },
+    { id: 8, min: 30000, max: Infinity }, // تغطي أي منتج فوق 30000 كمان
   ];
 
   const filtersWithCount = priceFilters.map((filter) => ({
@@ -76,17 +81,23 @@ function AllProductsContent() {
     count: products.filter(filter.predicate).length,
   }));
 
+  // 2) خلي الـ slider بياخد هامش أمان فوق أعلى سعر موجود فعليًا
   useEffect(() => {
     if (!products.length) return;
 
-    const prices = products.map((product) => product.price);
+    const prices = products
+      .map((product) => product.price)
+      .filter((p) => !isNaN(p)); // احتياط لو فيه سعر مش رقم صحيح
 
-    const max = Math.max(...prices);
+    if (!prices.length) return;
+
+    const realMax = Math.max(...prices);
+    // نقرّب لأعلى مضاعف 1000 ونزود شوية هامش عشان أي منتج بيبقى بالظبط عند أعلى قيمة يفضل ظاهر
+    const bufferedMax = Math.ceil((realMax + 1) / 1000) * 1000;
 
     setMinPrice(0);
-    setMaxPrice(max);
-
-    setPriceRange([0, max]);
+    setMaxPrice(bufferedMax);
+    setPriceRange([0, bufferedMax]);
   }, [products]);
 
   useEffect(() => {
